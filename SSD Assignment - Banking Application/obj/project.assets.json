@@ -333,11 +333,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\jessi\\OneDrive\\Documentos\\SSD-Assignment---Banking-Application-master (1)\\Bank-\\SSD Assignment - Banking Application\\SSD Assignment - Banking Application.csproj",
+      "projectUniqueName": "C:\\Users\\jessi\\OneDrive\\Documentos\\Secure-Software-Development-COMP08141\\SSD Assignment - Banking Application\\SSD Assignment - Banking Application.csproj",
       "projectName": "SSD Assignment - Banking Application",
-      "projectPath": "C:\\Users\\jessi\\OneDrive\\Documentos\\SSD-Assignment---Banking-Application-master (1)\\Bank-\\SSD Assignment - Banking Application\\SSD Assignment - Banking Application.csproj",
+      "projectPath": "C:\\Users\\jessi\\OneDrive\\Documentos\\Secure-Software-Development-COMP08141\\SSD Assignment - Banking Application\\SSD Assignment - Banking Application.csproj",
       "packagesPath": "C:\\Users\\jessi\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\jessi\\OneDrive\\Documentos\\SSD-Assignment---Banking-Application-master (1)\\Bank-\\SSD Assignment - Banking Application\\obj\\",
+      "outputPath": "C:\\Users\\jessi\\OneDrive\\Documentos\\Secure-Software-Development-COMP08141\\SSD Assignment - Banking Application\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\jessi\\AppData\\Roaming\\NuGet\\NuGet.Config",

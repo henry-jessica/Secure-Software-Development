@@ -168,20 +168,16 @@ namespace Banking_Application
                     @iv)";
 
 
-                RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-                byte[] iv = new byte[16];//Randomly Generate 128-Bit IV Value To Be Used In Modes Other Than ECB.
-                rng.GetBytes(iv);
-             
+                byte[] iv = GenerateRandomIV();
                 Aes aes = AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv);
 
-                byte[] encryptedName = AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.name), aes);
-
+                // Add parameters directly to the command's Parameters collection
                 command.Parameters.AddWithValue("@accountNo", ba.accountNo);
-                command.Parameters.AddWithValue("@name", Convert.ToBase64String(encryptedName));
-                command.Parameters.AddWithValue("@address_line_1", ba.address_line_1);
-                command.Parameters.AddWithValue("@address_line_2", ba.address_line_2);
-                command.Parameters.AddWithValue("@address_line_3", ba.address_line_3);
-                command.Parameters.AddWithValue("@town", ba.town);
+                command.Parameters.AddWithValue("@name",Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.name), aes)));
+                command.Parameters.AddWithValue("@address_line_1", Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_1), aes)));
+                command.Parameters.AddWithValue("@address_line_2", Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_2), aes)));
+                command.Parameters.AddWithValue("@address_line_3", Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_3), aes)));
+                command.Parameters.AddWithValue("@town", Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.town), aes)));
                 command.Parameters.AddWithValue("@balance", ba.balance);
 
 
@@ -210,7 +206,18 @@ namespace Banking_Application
 
             return ba.accountNo;
         }
-   
+
+
+        public static byte[] GenerateRandomIV()
+        {
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] iv = new byte[16]; // 128 bits for AES
+                rng.GetBytes(iv);
+                return iv;
+            }
+        }
+
 
         public Bank_Account findBankAccountByAccNo(String accNo) 
         { 
