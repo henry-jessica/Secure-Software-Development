@@ -98,7 +98,7 @@ namespace Banking_Application
                             byte[] iv = Convert.FromBase64String(ivBase64);
 
                             byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
-                            ca.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.CreateAesInstanceWithIV(iv)));
+                            ca.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
 
                             ca.accountNo = dr.GetString(0);
                             ca.name = dr.GetString(1);
@@ -119,7 +119,7 @@ namespace Banking_Application
 
                             // Decrypt the name using AesEncryption class
                             byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
-                            sa.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.CreateAesInstanceWithIV(iv)));
+                            sa.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
 
                             sa.accountNo = dr.GetString(0);
                             sa.name = dr.GetString(1);
@@ -172,7 +172,7 @@ namespace Banking_Application
                 byte[] iv = new byte[16];//Randomly Generate 128-Bit IV Value To Be Used In Modes Other Than ECB.
                 rng.GetBytes(iv);
              
-                Aes aes = AesEncryptionHendler.CreateAesInstanceWithIV(iv);
+                Aes aes = AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv);
 
                 byte[] encryptedName = AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.name), aes);
 

@@ -12,7 +12,7 @@ namespace Banking_Application
 {
     public static class AesEncryptionHendler
     {
-        public static Aes CreateAesInstanceWithIV(byte[] iv)
+        public static Aes GetOrCreateAesEncryptionKey(byte[] iv)
         {
             RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
 
