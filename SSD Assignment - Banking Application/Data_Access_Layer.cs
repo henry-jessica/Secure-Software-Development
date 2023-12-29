@@ -17,18 +17,23 @@ namespace Banking_Application
 
         private List<Bank_Account> accounts;
         public static String databaseName = "Banking Database.db";
-        private static Data_Access_Layer instance = new Data_Access_Layer();
+        //private static Data_Access_Layer instance = new Data_Access_Layer();
 
-        private Data_Access_Layer()//Singleton Design Pattern (For Concurrency Control) - Use getInstance() Method Instead.
+        // provide a thread-safe way to implement lazy initialization
+        private static readonly Lazy<Data_Access_Layer> lazyInstance =  new Lazy<Data_Access_Layer>(() => new Data_Access_Layer());
+
+        private Data_Access_Layer()
         {
             // Initialize the AesEncrypti
             accounts = new List<Bank_Account>();
         }
 
+       //Using lock keyword or by using Lazy<T> for lazy initialization.
         public static Data_Access_Layer getInstance()
         {
-            return instance;
+            return lazyInstance.Value;
         }
+
 
         private SqliteConnection getDatabaseConnection()
         {
@@ -127,14 +132,33 @@ namespace Banking_Application
                         ca.balance = dr.GetDouble(6);
                         ca.overdraftAmount = dr.GetDouble(8);
 
-                        accounts.Add(ca);
                         return ca;
                     }
                     else
                     {
+
+                        // Get from database the encrypted data 
+                        byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
+                        byte[] encryptedAddressLine1Bytes = Convert.FromBase64String(dr.GetString(2));
+                        byte[] encryptedAddressLine2Bytes = Convert.FromBase64String(dr.GetString(3));
+                        byte[] encryptedAddressLine3Bytes = Convert.FromBase64String(dr.GetString(4));
+                        byte[] encryptedTownBytes = Convert.FromBase64String(dr.GetString(5));
+
+                        string ivBase64 = dr.GetString(10); // Read IV as Base64 string from the database
+
+                        byte[] iv = Convert.FromBase64String(ivBase64); // Convert IV to byte array for decryption
+
+
                         Savings_Account sa = new Savings_Account();
-                        // ... (existing code to populate Savings_Account)
-                        accounts.Add(sa);
+
+                        sa.accountNo = dr.GetString(0);
+                        sa.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        sa.address_line_1 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        sa.address_line_2 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        sa.address_line_3 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        sa.town = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedTownBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        sa.balance = dr.GetDouble(6);
+                        sa.interestRate = dr.GetDouble(9);
                         return sa;
                     }
                 }
@@ -144,10 +168,21 @@ namespace Banking_Application
             return null;
         }
 
+        private void ClearSensitiveInformation(Bank_Account account)
+        {
+            account.name = null;
+            account.address_line_1 = null;
+            account.address_line_2 = null;
+            account.address_line_3 = null;
+            account.town = null;
+            GC.Collect();
+        }
+
         public String addBankAccount(Bank_Account ba)
         {
             // Ensure the database is initialized
-            initialiseDatabase();
+            if (!File.Exists(Data_Access_Layer.databaseName))
+                initialiseDatabase();
 
 
             if (ba.GetType() == typeof(Current_Account))
@@ -217,6 +252,10 @@ namespace Banking_Application
 
             }
 
+
+            // Clear sensitive information from memory after save to database 
+            ClearSensitiveInformation(ba);
+
             return ba.accountNo;
         }
 
@@ -233,9 +272,6 @@ namespace Banking_Application
             }
         }
 
-
-
-        //TODO review
         public static byte[] GenerateRandomIV()
         {
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
@@ -245,7 +281,6 @@ namespace Banking_Application
                 return iv;
             }
         }
-
 
         public Bank_Account findBankAccountByAccNo2(String accNo) 
         { 
