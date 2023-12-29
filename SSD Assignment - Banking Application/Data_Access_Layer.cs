@@ -81,15 +81,31 @@ namespace Banking_Application
       
         public Bank_Account findBankAccountByAccNo(String accNo)
         {
-            initialiseDatabase();
+
 
             // Log the event: Attempting to find bank account by account number
-           // Logger.LogEvent("Attempting to find bank account", $"Account Number: {accNo}");
             Logger.WriteEvent($"Attempting to find bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
 
+            String encryptedAccNo = AesEncryptionHandler.EncryptAccountNumber(accNo);
+
+
+            Bank_Account ba = loadBankAccount(encryptedAccNo);
+
+            if (ba == null)
+                return null;
+            else
+                return ba;
+
+         
+        }
+
+        public Bank_Account loadBankAccount(String encryptedAccNo)
+        {
+            //TO DO
+            initialiseDatabase();
 
             // Check if the account is already loaded in the accounts list
-            Bank_Account existingAccount = accounts.FirstOrDefault(acc => acc.accountNo.Equals(accNo, StringComparison.OrdinalIgnoreCase));
+            Bank_Account existingAccount = accounts.FirstOrDefault(acc => acc.accountNo.Equals(encryptedAccNo, StringComparison.OrdinalIgnoreCase));
 
             if (existingAccount != null)
             {
@@ -102,7 +118,7 @@ namespace Banking_Application
                 connection.Open();
                 var command = connection.CreateCommand();
                 command.CommandText = "SELECT * FROM Bank_Accounts WHERE accountNo = @accountNo";
-                command.Parameters.AddWithValue("@accountNo", accNo);
+                command.Parameters.AddWithValue("@accountNo", encryptedAccNo);
 
                 SqliteDataReader dr = command.ExecuteReader();
 
@@ -124,12 +140,13 @@ namespace Banking_Application
                         byte[] iv = Convert.FromBase64String(ivBase64); // Convert IV to byte array for decryption
 
                         Current_Account ca = new Current_Account();
-                        ca.accountNo = dr.GetString(0);
-                        ca.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-                        ca.address_line_1 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-                        ca.address_line_2 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-                        ca.address_line_3 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-                        ca.town = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedTownBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+
+                        ca.accountNo = AesEncryptionHandler.DecryptAccountNumber(dr.GetString(0));
+                        ca.name = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedNameBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
+                        ca.address_line_1 = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
+                        ca.address_line_2 = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
+                        ca.address_line_3 = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
+                        ca.town = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedTownBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
                         ca.balance = dr.GetDouble(6);
                         ca.overdraftAmount = dr.GetDouble(8);
 
@@ -152,12 +169,12 @@ namespace Banking_Application
 
                         Savings_Account sa = new Savings_Account();
 
-                        sa.accountNo = dr.GetString(0);
-                        sa.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-                        sa.address_line_1 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-                        sa.address_line_2 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-                        sa.address_line_3 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-                        sa.town = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedTownBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        sa.accountNo = AesEncryptionHandler.DecryptAccountNumber(dr.GetString(0));
+                        sa.name = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedNameBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
+                        sa.address_line_1 = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
+                        sa.address_line_2 = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
+                        sa.address_line_3 = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
+                        sa.town = Encoding.UTF8.GetString(AesEncryptionHandler.Decrypt(encryptedTownBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv)));
                         sa.balance = dr.GetDouble(6);
                         sa.interestRate = dr.GetDouble(9);
                         return sa;
@@ -168,8 +185,6 @@ namespace Banking_Application
             // Account not found in the database
             return null;
         }
-
-
         public String addBankAccount(Bank_Account ba)
         {
             // Ensure the database is initialized
@@ -209,15 +224,16 @@ namespace Banking_Application
                 command.Parameters.AddWithValue("@integrity_hash", integrityHash);
 
                 byte[] iv = GenerateRandomIV();
-                Aes aes = AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv);
+                Aes aes = AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv);
 
                 // Add parameters directly to the command's Parameters collection
-                command.Parameters.AddWithValue("@accountNo", ba.accountNo);
-                command.Parameters.AddWithValue("@name",Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.name), aes)));
-                command.Parameters.AddWithValue("@address_line_1", Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_1), aes)));
-                command.Parameters.AddWithValue("@address_line_2", Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_2), aes)));
-                command.Parameters.AddWithValue("@address_line_3", Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_3), aes)));
-                command.Parameters.AddWithValue("@town", Convert.ToBase64String(AesEncryptionHendler.Encrypt(Encoding.UTF8.GetBytes(ba.town), aes)));
+                // command.Parameters.AddWithValue("@accountNo", ba.accountNo);
+                command.Parameters.AddWithValue("@accountNo",(AesEncryptionHandler.EncryptAccountNumber(ba.accountNo)));
+                command.Parameters.AddWithValue("@name",Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.name), aes)));
+                command.Parameters.AddWithValue("@address_line_1", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_1), aes)));
+                command.Parameters.AddWithValue("@address_line_2", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_2), aes)));
+                command.Parameters.AddWithValue("@address_line_3", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_3), aes)));
+                command.Parameters.AddWithValue("@town", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.town), aes)));
                 command.Parameters.AddWithValue("@balance", ba.balance);
 
 
@@ -277,55 +293,32 @@ namespace Banking_Application
             }
         }
 
-        public Bank_Account findBankAccountByAccNo2(String accNo) 
-        { 
-        
-            foreach(Bank_Account ba in accounts)
-            {
-
-                if (ba.accountNo.Equals(accNo))
-                {
-                    return ba;
-                }
-
-            }
-
-            return null; 
-        }
-
         public bool closeBankAccount(String accNo) 
         {
+            // Log the event: Attempting to find bank account by account number
+            Logger.WriteEvent($"Attempting to delete bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
 
-            Bank_Account toRemove = null;
-            
-            foreach (Bank_Account ba in accounts)
-            {
+            String encryptedAccNo = AesEncryptionHandler.EncryptAccountNumber(accNo);
 
-                if (ba.accountNo.Equals(accNo))
-                {
-                    toRemove = ba;
-                    break;
-                }
+            if (!File.Exists(Data_Access_Layer.databaseName))
+                initialiseDatabase();
 
-            }
-
-            if (toRemove == null)
+            if (encryptedAccNo == null)
                 return false;
             else
             {
-                accounts.Remove(toRemove);
+               // accounts.Remove(toRemove);
 
                 using (var connection = getDatabaseConnection())
                 {
                     connection.Open();
                     var command = connection.CreateCommand();
-                    command.CommandText = "DELETE FROM Bank_Accounts WHERE accountNo = '" + toRemove.accountNo + "'";
+                    command.CommandText = "DELETE FROM Bank_Accounts WHERE accountNo = '" + encryptedAccNo + "'";
                     command.ExecuteNonQuery();
 
                 }
 
-                // Clear sensitive information 
-                toRemove = null;
+                encryptedAccNo = null; 
                 GC.Collect();
 
                 return true;
@@ -373,6 +366,7 @@ namespace Banking_Application
             }
 
         }
+
 
         public bool withdraw(String accNo, double amountToWithdraw)
         {
