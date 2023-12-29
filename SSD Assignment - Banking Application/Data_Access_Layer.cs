@@ -3,6 +3,7 @@ using System.Buffers.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -71,80 +72,15 @@ namespace Banking_Application
 
             }
         }
-
-        //public void loadBankAccounts()
-        //{
-        //    if (!File.Exists(Data_Access_Layer.databaseName))
-        //        initialiseDatabase();
-        //    else
-        //    {
-
-        //        using (var connection = getDatabaseConnection())
-        //        {
-        //          //  AesEncryption aesEncryption = new AesEncryption();
-
-        //            connection.Open();
-        //            var command = connection.CreateCommand();
-        //            command.CommandText = "SELECT * FROM Bank_Accounts";
-        //            SqliteDataReader dr = command.ExecuteReader();
-
-        //            while (dr.Read())
-        //            {
-
-        //                int accountType = dr.GetInt16(7);
-
-        //                if (accountType == Account_Type.Current_Account)
-        //                {
-        //                    Current_Account ca = new Current_Account();
-
-        //                    string ivBase64 = dr.GetString(10);
-        //                    byte[] iv = Convert.FromBase64String(ivBase64);
-
-        //                    byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
-        //                    ca.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-
-        //                    ca.accountNo = dr.GetString(0);
-        //                    ca.name = dr.GetString(1);
-        //                    ca.address_line_1 = dr.GetString(2);
-        //                    ca.address_line_2 = dr.GetString(3);
-        //                    ca.address_line_3 = dr.GetString(4);
-        //                    ca.town = dr.GetString(5);
-        //                    ca.balance = dr.GetDouble(6);
-        //                    ca.overdraftAmount = dr.GetDouble(8);
-        //                    accounts.Add(ca);
-        //                }
-        //                else
-        //                {
-        //                    Savings_Account sa = new Savings_Account();
-
-        //                    string ivBase64 = dr.GetString(10);
-        //                    byte[] iv = Convert.FromBase64String(ivBase64);
-
-        //                    // Decrypt the name using AesEncryption class
-        //                    byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
-        //                    sa.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-
-        //                    sa.accountNo = dr.GetString(0);
-        //                    sa.name = dr.GetString(1);
-        //                    sa.address_line_1 = dr.GetString(2);
-        //                    sa.address_line_2 = dr.GetString(3);
-        //                    sa.address_line_3 = dr.GetString(4);
-        //                    sa.town = dr.GetString(5);
-        //                    sa.balance = dr.GetDouble(6);
-        //                    sa.interestRate = dr.GetDouble(9);
-        //                    accounts.Add(sa);
-        //                }
-
-
-        //            }
-        //        }
-        //    }
-        //}
-
-
+      
         public Bank_Account findBankAccountByAccNo(String accNo)
         {
             initialiseDatabase();
+
+            // Log the event: Attempting to find bank account by account number
+           // Logger.LogEvent("Attempting to find bank account", $"Account Number: {accNo}");
+            Logger.WriteEvent($"Attempting to find bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
+
 
             // Check if the account is already loaded in the accounts list
             Bank_Account existingAccount = accounts.FirstOrDefault(acc => acc.accountNo.Equals(accNo, StringComparison.OrdinalIgnoreCase));
