@@ -81,7 +81,7 @@ namespace Banking_Application
                 eventLog.WriteEntry(formattedMessage, eventType);
 
                 // Upload log to GitHub Gist
-                _ = UploadToGitHubGist(formattedMessage);
+                //  _ = UploadToGitHubGist(formattedMessage);
             }
         }
 
