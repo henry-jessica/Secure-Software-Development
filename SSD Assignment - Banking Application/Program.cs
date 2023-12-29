@@ -10,7 +10,7 @@ namespace Banking_Application
         {
             
             Data_Access_Layer dal = Data_Access_Layer.getInstance();
-             dal.loadBankAccounts();
+            // dal.loadBankAccounts();
             bool running = true;
 
             do

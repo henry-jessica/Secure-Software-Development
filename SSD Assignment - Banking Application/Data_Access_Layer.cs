@@ -2,6 +2,7 @@
 using System.Buffers.Text;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -60,7 +61,9 @@ namespace Banking_Application
                         accountType INTEGER NOT NULL,
                         overdraftAmount REAL,
                         interestRate REAL, 
-                        iv TEXT NOT NULL
+                        iv TEXT NOT NULL, 
+                        integrity_hash TEXT NOT NULL 
+
                     ) WITHOUT ROWID
                 ";
 
@@ -69,77 +72,147 @@ namespace Banking_Application
             }
         }
 
-        public void loadBankAccounts()
+        //public void loadBankAccounts()
+        //{
+        //    if (!File.Exists(Data_Access_Layer.databaseName))
+        //        initialiseDatabase();
+        //    else
+        //    {
+
+        //        using (var connection = getDatabaseConnection())
+        //        {
+        //          //  AesEncryption aesEncryption = new AesEncryption();
+
+        //            connection.Open();
+        //            var command = connection.CreateCommand();
+        //            command.CommandText = "SELECT * FROM Bank_Accounts";
+        //            SqliteDataReader dr = command.ExecuteReader();
+
+        //            while (dr.Read())
+        //            {
+
+        //                int accountType = dr.GetInt16(7);
+
+        //                if (accountType == Account_Type.Current_Account)
+        //                {
+        //                    Current_Account ca = new Current_Account();
+
+        //                    string ivBase64 = dr.GetString(10);
+        //                    byte[] iv = Convert.FromBase64String(ivBase64);
+
+        //                    byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
+        //                    ca.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+
+        //                    ca.accountNo = dr.GetString(0);
+        //                    ca.name = dr.GetString(1);
+        //                    ca.address_line_1 = dr.GetString(2);
+        //                    ca.address_line_2 = dr.GetString(3);
+        //                    ca.address_line_3 = dr.GetString(4);
+        //                    ca.town = dr.GetString(5);
+        //                    ca.balance = dr.GetDouble(6);
+        //                    ca.overdraftAmount = dr.GetDouble(8);
+        //                    accounts.Add(ca);
+        //                }
+        //                else
+        //                {
+        //                    Savings_Account sa = new Savings_Account();
+
+        //                    string ivBase64 = dr.GetString(10);
+        //                    byte[] iv = Convert.FromBase64String(ivBase64);
+
+        //                    // Decrypt the name using AesEncryption class
+        //                    byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
+        //                    sa.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+
+        //                    sa.accountNo = dr.GetString(0);
+        //                    sa.name = dr.GetString(1);
+        //                    sa.address_line_1 = dr.GetString(2);
+        //                    sa.address_line_2 = dr.GetString(3);
+        //                    sa.address_line_3 = dr.GetString(4);
+        //                    sa.town = dr.GetString(5);
+        //                    sa.balance = dr.GetDouble(6);
+        //                    sa.interestRate = dr.GetDouble(9);
+        //                    accounts.Add(sa);
+        //                }
+
+
+        //            }
+        //        }
+        //    }
+        //}
+
+
+        public Bank_Account findBankAccountByAccNo(String accNo)
         {
-            if (!File.Exists(Data_Access_Layer.databaseName))
-                initialiseDatabase();
-            else
+            initialiseDatabase();
+
+            // Check if the account is already loaded in the accounts list
+            Bank_Account existingAccount = accounts.FirstOrDefault(acc => acc.accountNo.Equals(accNo, StringComparison.OrdinalIgnoreCase));
+
+            if (existingAccount != null)
             {
+                return existingAccount;
+            }
 
-                using (var connection = getDatabaseConnection())
+            // If the account is not already loaded, load it from the database
+            using (var connection = getDatabaseConnection())
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT * FROM Bank_Accounts WHERE accountNo = @accountNo";
+                command.Parameters.AddWithValue("@accountNo", accNo);
+
+                SqliteDataReader dr = command.ExecuteReader();
+
+                while (dr.Read())
                 {
-                  //  AesEncryption aesEncryption = new AesEncryption();
+                    int accountType = dr.GetInt16(7);
 
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText = "SELECT * FROM Bank_Accounts";
-                    SqliteDataReader dr = command.ExecuteReader();
-
-                    while (dr.Read())
+                    if (accountType == Account_Type.Current_Account)
                     {
+                        // Get from database the encrypted data 
+                        byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
+                        byte[] encryptedAddressLine1Bytes = Convert.FromBase64String(dr.GetString(2));
+                        byte[] encryptedAddressLine2Bytes = Convert.FromBase64String(dr.GetString(3));
+                        byte[] encryptedAddressLine3Bytes = Convert.FromBase64String(dr.GetString(4));
+                        byte[] encryptedTownBytes = Convert.FromBase64String(dr.GetString(5));
 
-                        int accountType = dr.GetInt16(7);
 
-                        if (accountType == Account_Type.Current_Account)
-                        {
-                            Current_Account ca = new Current_Account();
+                        string ivBase64 = dr.GetString(10); // Read IV as Base64 string from the database
+                        byte[] iv = Convert.FromBase64String(ivBase64); // Convert IV to byte array for decryption
 
-                            string ivBase64 = dr.GetString(10);
-                            byte[] iv = Convert.FromBase64String(ivBase64);
+                        Current_Account ca = new Current_Account();
+                        ca.accountNo = dr.GetString(0);
+                        ca.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        ca.address_line_1 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        ca.address_line_2 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        ca.address_line_3 = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        ca.town = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedTownBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
+                        ca.balance = dr.GetDouble(6);
+                        ca.overdraftAmount = dr.GetDouble(8);
 
-                            byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
-                            ca.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-
-                            ca.accountNo = dr.GetString(0);
-                            ca.name = dr.GetString(1);
-                            ca.address_line_1 = dr.GetString(2);
-                            ca.address_line_2 = dr.GetString(3);
-                            ca.address_line_3 = dr.GetString(4);
-                            ca.town = dr.GetString(5);
-                            ca.balance = dr.GetDouble(6);
-                            ca.overdraftAmount = dr.GetDouble(8);
-                            accounts.Add(ca);
-                        }
-                        else
-                        {
-                            Savings_Account sa = new Savings_Account();
-
-                            string ivBase64 = dr.GetString(10);
-                            byte[] iv = Convert.FromBase64String(ivBase64);
-
-                            // Decrypt the name using AesEncryption class
-                            byte[] encryptedNameBytes = Convert.FromBase64String(dr.GetString(1));
-                            sa.name = Encoding.UTF8.GetString(AesEncryptionHendler.Decrypt(encryptedNameBytes, AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv)));
-
-                            sa.accountNo = dr.GetString(0);
-                            sa.name = dr.GetString(1);
-                            sa.address_line_1 = dr.GetString(2);
-                            sa.address_line_2 = dr.GetString(3);
-                            sa.address_line_3 = dr.GetString(4);
-                            sa.town = dr.GetString(5);
-                            sa.balance = dr.GetDouble(6);
-                            sa.interestRate = dr.GetDouble(9);
-                            accounts.Add(sa);
-                        }
-
-                      
+                        accounts.Add(ca);
+                        return ca;
+                    }
+                    else
+                    {
+                        Savings_Account sa = new Savings_Account();
+                        // ... (existing code to populate Savings_Account)
+                        accounts.Add(sa);
+                        return sa;
                     }
                 }
             }
+
+            // Account not found in the database
+            return null;
         }
 
         public String addBankAccount(Bank_Account ba)
         {
+            // Ensure the database is initialized
+            initialiseDatabase();
+
 
             if (ba.GetType() == typeof(Current_Account))
                 ba = (Current_Account)ba;
@@ -165,8 +238,12 @@ namespace Banking_Application
                     @accountType, 
                     @overdraftAmount, 
                     @interestRate, 
-                    @iv)";
+                    @iv, 
+                    @integrity_hash)";
 
+                // Calculate hash for integrity check
+                string integrityHash = CalculateIntegrityHash(ba);
+                command.Parameters.AddWithValue("@integrity_hash", integrityHash);
 
                 byte[] iv = GenerateRandomIV();
                 Aes aes = AesEncryptionHendler.GetOrCreateAesEncryptionKey(iv);
@@ -207,7 +284,22 @@ namespace Banking_Application
             return ba.accountNo;
         }
 
+        private string CalculateIntegrityHash(Bank_Account ba)
+        {
+            // Concatenate relevant columns for hashing
+            string dataToHash = $"{ba.accountNo}{ba.name}{ba.address_line_1}{ba.address_line_2}{ba.address_line_3}{ba.town}{ba.balance}";
 
+            // Use a secure hashing algorithm (e.g., SHA-256)
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(dataToHash));
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            }
+        }
+
+
+
+        //TODO review
         public static byte[] GenerateRandomIV()
         {
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
@@ -219,7 +311,7 @@ namespace Banking_Application
         }
 
 
-        public Bank_Account findBankAccountByAccNo(String accNo) 
+        public Bank_Account findBankAccountByAccNo2(String accNo) 
         { 
         
             foreach(Bank_Account ba in accounts)

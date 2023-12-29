@@ -16,7 +16,7 @@ namespace Banking_Application
         {
             RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
 
-            String crypto_key_name = "key name2";
+            String crypto_key_name = "bank_crypto_key_name";
             CngProvider key_storage_provider = CngProvider.MicrosoftSoftwareKeyStorageProvider;
 
 
