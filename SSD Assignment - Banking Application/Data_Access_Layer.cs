@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
@@ -168,15 +169,6 @@ namespace Banking_Application
             return null;
         }
 
-        private void ClearSensitiveInformation(Bank_Account account)
-        {
-            account.name = null;
-            account.address_line_1 = null;
-            account.address_line_2 = null;
-            account.address_line_3 = null;
-            account.town = null;
-            GC.Collect();
-        }
 
         public String addBankAccount(Bank_Account ba)
         {
@@ -252,11 +244,14 @@ namespace Banking_Application
 
             }
 
+            //grab the accoun number to clean the rest
+            string bank_account_number = ba.accountNo;
 
             // Clear sensitive information from memory after save to database 
-            ClearSensitiveInformation(ba);
+            ba = null;
+            GC.Collect();
 
-            return ba.accountNo;
+            return bank_account_number;
         }
 
         private string CalculateIntegrityHash(Bank_Account ba)
@@ -329,6 +324,10 @@ namespace Banking_Application
 
                 }
 
+                // Clear sensitive information 
+                toRemove = null;
+                GC.Collect();
+
                 return true;
             }
 
@@ -365,6 +364,10 @@ namespace Banking_Application
                     command.Parameters.AddWithValue("@accountNo", toLodgeTo.accountNo);
                     command.ExecuteNonQuery();
                 }
+
+                // Clear sensitive information 
+                toLodgeTo = null;
+                GC.Collect();
 
                 return true;
             }
@@ -404,6 +407,9 @@ namespace Banking_Application
                     command.Parameters.AddWithValue("@accountNo", toWithdrawFrom.accountNo);
                     command.ExecuteNonQuery();
                 }
+
+                toWithdrawFrom = null;
+                GC.Collect();
 
                 return true;
             }
