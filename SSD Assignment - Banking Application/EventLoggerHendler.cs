@@ -9,7 +9,7 @@ using System.Net;
 using Newtonsoft.Json;
 
 // NOTE: 
-// Here I am saving logs in my system, I am also saving to my github gists 
+// Here I am saving logs in my win system, I am also saving to my github gists 
 
 namespace Banking_Application
 {
@@ -93,7 +93,7 @@ namespace Banking_Application
         }
 
 
-        //Upload to git 
+        //Upload to git file called log.txt
 
         public static async Task UploadToGitHubGist(string content)
         {
@@ -140,8 +140,6 @@ namespace Banking_Application
                 Console.WriteLine($"Exception during Gist update: {ex.Message}");
             }
         }
-
-
 
     }
 
