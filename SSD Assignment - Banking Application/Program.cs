@@ -221,6 +221,7 @@ namespace Banking_Application
                                 {
                                     case "Y":
                                     case "y": dal.closeBankAccount(accNo);
+                                              Console.WriteLine("Account successfully deleted.");
                                         break;
                                     case "N":
                                     case "n":
