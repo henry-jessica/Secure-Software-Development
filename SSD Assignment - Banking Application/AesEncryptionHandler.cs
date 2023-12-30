@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 
 namespace Banking_Application
 {
-    public static class AesEncryptionHendler
+    public static class AesEncryptionHandler
     {
         public static Aes GetOrCreateAesEncryptionKeyCBC(byte[] iv)
         {
@@ -31,7 +31,7 @@ namespace Banking_Application
                 CngKey.Create(new CngAlgorithm("AES"), crypto_key_name, key_creation_parameters);
 
             }
-            Aes aes = aes = new AesCng(crypto_key_name, key_storage_provider); 
+            Aes aes = aes = new AesCng(crypto_key_name, key_storage_provider);
 
             aes.Mode = CipherMode.CBC;
             aes.IV = iv;
