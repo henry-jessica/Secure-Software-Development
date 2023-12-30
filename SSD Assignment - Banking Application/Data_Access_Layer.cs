@@ -10,6 +10,8 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using System.Reflection;
+
 
 namespace Banking_Application
 {
@@ -365,7 +367,7 @@ namespace Banking_Application
 
         }
 
-        public Bank_Account LoadBankAccountFromDatabaseWithOutDecryption(String accNo)
+        public Bank_Account FindBankAccountFromDatabaseWithOutDecryption(String accNo)
         {
             // Log the event: Attempting to find bank account by account number
             Logger.WriteEvent($"Attempting to find bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
@@ -419,6 +421,34 @@ namespace Banking_Application
             // Account not found in the database
             return null;
         }
+
+        // HERE I AM APPLYING SOME REFLACTION
+
+        public void PrintBankAccountDetails(string accNo)
+        {
+            Bank_Account account = FindBankAccountByAccNo(accNo);
+
+            if (account != null)
+            {
+                Type accountType = account.GetType();
+                MethodInfo toStringMethod = accountType.GetMethod("ToString");
+
+                if (toStringMethod != null)
+                {
+                    // Invoke the ToString method dynamically
+                    string details = (string)toStringMethod.Invoke(account, null);
+
+                    // Print the details
+                    Console.WriteLine("Bank Account Details:");
+                    Console.WriteLine(details);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Account Does Not Exist");
+            }
+        }
+
 
         public bool Withdraw(String accNo, double amountToWithdraw)
         {
