@@ -13,7 +13,6 @@ namespace Banking_Application
 
             bool running = true;
 
-
             do
             {
 
@@ -190,7 +189,7 @@ namespace Banking_Application
                             ba = new Savings_Account(name, addressLine1, addressLine2, addressLine3, town, balance, interestRate);
                         }
 
-                        String accNo = dal.addBankAccount(ba);
+                        String accNo = dal.AddBankAccount(ba);
 
                         Console.WriteLine("New Account Number Is: " + accNo);
 
@@ -215,7 +214,7 @@ namespace Banking_Application
                         else
                         {
 
-                            Bank_Account ba_details = dal.findBankAccountByAccNo(accNo);
+                            Bank_Account ba_details = dal.FindBankAccountByAccNo(accNo);
                             Console.WriteLine(ba_details.ToString());
                             // clean after use it 
                             ba_details = null;
@@ -232,7 +231,7 @@ namespace Banking_Application
                                 switch (ans)
                                 {
                                     case "Y":
-                                    case "y": dal.closeBankAccount(ba.accountNo); //encrypted bank account number 
+                                    case "y": dal.CloseBankAccount(ba.accountNo); //encrypted bank account number 
                                               Console.WriteLine("Account successfully deleted.");
                                         break;
                                     case "N":
@@ -250,7 +249,7 @@ namespace Banking_Application
                         Console.WriteLine("Enter Account Number: ");
                         accNo = Console.ReadLine();
 
-                        ba = dal.findBankAccountByAccNo(accNo);
+                        ba = dal.FindBankAccountByAccNo(accNo);
 
                         if(ba is null) 
                         {
@@ -266,7 +265,7 @@ namespace Banking_Application
                         Console.WriteLine("Enter Account Number: ");
                         accNo = Console.ReadLine();
 
-                        ba = dal.findBankAccountByAccNo(accNo);
+                        ba = dal.FindBankAccountByAccNo(accNo);
 
                         if (ba is null)
                         {
@@ -298,14 +297,14 @@ namespace Banking_Application
 
                             } while (amountToLodge < 0);
 
-                            dal.lodge(accNo, amountToLodge);
+                            dal.Lodge(accNo, amountToLodge);
                         }
                         break;
                     case "5": //Withdraw
                         Console.WriteLine("Enter Account Number: ");
                         accNo = Console.ReadLine();
 
-                        ba = dal.findBankAccountByAccNo(accNo);
+                        ba = dal.FindBankAccountByAccNo(accNo);
 
                         if (ba is null)
                         {
@@ -337,7 +336,7 @@ namespace Banking_Application
 
                             } while (amountToWithdraw < 0);
 
-                            bool withdrawalOK = dal.withdraw(accNo, amountToWithdraw);
+                            bool withdrawalOK = dal.Withdraw(accNo, amountToWithdraw);
 
                             if(withdrawalOK == false)
                             {

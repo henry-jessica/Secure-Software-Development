@@ -17,7 +17,7 @@ namespace Banking_Application
     {
 
         private List<Bank_Account> accounts;
-        public static String databaseName = "Banking Database.db";
+        private static String databaseName = "Banking Database.db";
 
         // provide a thread-safe way to implement lazy initialization
         private static readonly Lazy<Data_Access_Layer> lazyInstance =  new Lazy<Data_Access_Layer>(() => new Data_Access_Layer());
@@ -77,7 +77,7 @@ namespace Banking_Application
             }
         }
       
-        public Bank_Account findBankAccountByAccNo(String accNo)
+        public Bank_Account FindBankAccountByAccNo(String accNo)
         {
 
 
@@ -181,7 +181,8 @@ namespace Banking_Application
             // Account not found in the database
             return null;
         }
-        public String addBankAccount(Bank_Account ba)
+
+        public String AddBankAccount(Bank_Account ba)
         {
             // Ensure the database is initialized
             if (!File.Exists(Data_Access_Layer.databaseName))
@@ -216,10 +217,10 @@ namespace Banking_Application
                     @integrity_hash)";
 
                 // Calculate hash for integrity check
-                string integrityHash = CalculateIntegrityHash(ba);
+                string integrityHash = calculateIntegrityHash(ba);
                 command.Parameters.AddWithValue("@integrity_hash", integrityHash);
 
-                byte[] iv = GenerateRandomIV();
+                byte[] iv = generateRandomIV();
                 Aes aes = AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv);
 
                 // Add parameters directly to the command's Parameters collection
@@ -266,7 +267,7 @@ namespace Banking_Application
             return bank_account_number;
         }
 
-        private string CalculateIntegrityHash(Bank_Account ba)
+        private string calculateIntegrityHash(Bank_Account ba)
         {
             // Concatenate relevant columns for hashing
             string dataToHash = $"{ba.accountNo}{ba.name}{ba.address_line_1}{ba.address_line_2}{ba.address_line_3}{ba.town}{ba.balance}";
@@ -279,7 +280,7 @@ namespace Banking_Application
             }
         }
 
-        public static byte[] GenerateRandomIV()
+        private static byte[] generateRandomIV()
         {
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
             {
@@ -289,7 +290,7 @@ namespace Banking_Application
             }
         }
 
-        public bool closeBankAccount(String encryptedAccNo) 
+        public bool CloseBankAccount(String encryptedAccNo) 
         {
 
             // Log the event: Attempting to find bank account by account number
@@ -323,7 +324,7 @@ namespace Banking_Application
 
         }
 
-        public bool lodge(String accNo, double amountToLodge)
+        public bool Lodge(String accNo, double amountToLodge)
         {
 
             Bank_Account toLodgeTo = null;
@@ -363,7 +364,6 @@ namespace Banking_Application
             }
 
         }
-
 
         public Bank_Account LoadBankAccountFromDatabaseWithOutDecryption(String accNo)
         {
@@ -420,7 +420,7 @@ namespace Banking_Application
             return null;
         }
 
-        public bool withdraw(String accNo, double amountToWithdraw)
+        public bool Withdraw(String accNo, double amountToWithdraw)
         {
 
             Bank_Account toWithdrawFrom = null;
