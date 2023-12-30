@@ -22,7 +22,7 @@ namespace Banking_Application
         private static String databaseName = "Banking Database.db";
 
         // provide a thread-safe way to implement lazy initialization
-        private static readonly Lazy<Data_Access_Layer> lazyInstance =  new Lazy<Data_Access_Layer>(() => new Data_Access_Layer());
+        private static readonly Lazy<Data_Access_Layer> lazyInstance = new Lazy<Data_Access_Layer>(() => new Data_Access_Layer());
 
         private Data_Access_Layer()
         {
@@ -78,7 +78,7 @@ namespace Banking_Application
 
             }
         }
-      
+
         public Bank_Account FindBankAccountByAccNo(String accNo)
         {
 
@@ -227,8 +227,8 @@ namespace Banking_Application
 
                 // Add parameters directly to the command's Parameters collection
                 // command.Parameters.AddWithValue("@accountNo", ba.accountNo);
-                command.Parameters.AddWithValue("@accountNo",(AesEncryptionHandler.EncryptAccountNumber(ba.accountNo)));
-                command.Parameters.AddWithValue("@name",Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.name), aes)));
+                command.Parameters.AddWithValue("@accountNo", (AesEncryptionHandler.EncryptAccountNumber(ba.accountNo)));
+                command.Parameters.AddWithValue("@name", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.name), aes)));
                 command.Parameters.AddWithValue("@address_line_1", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_1), aes)));
                 command.Parameters.AddWithValue("@address_line_2", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_2), aes)));
                 command.Parameters.AddWithValue("@address_line_3", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_3), aes)));
@@ -251,7 +251,7 @@ namespace Banking_Application
                     command.Parameters.AddWithValue("@overdraftAmount", DBNull.Value);
                     command.Parameters.AddWithValue("@interestRate", sa.interestRate);
                 }
-               
+
                 command.Parameters.AddWithValue("@iv", Convert.ToBase64String(iv)); // Save IV as a Base64 string
 
 
@@ -292,7 +292,7 @@ namespace Banking_Application
             }
         }
 
-        public bool CloseBankAccount(String encryptedAccNo) 
+        public bool CloseBankAccount(String encryptedAccNo)
         {
 
             // Log the event: Attempting to find bank account by account number
@@ -318,7 +318,7 @@ namespace Banking_Application
 
                 }
 
-                encryptedAccNo = null; 
+                encryptedAccNo = null;
                 GC.Collect();
 
                 return true;
@@ -451,18 +451,33 @@ namespace Banking_Application
 
         public bool Withdraw(String accNo, double amountToWithdraw)
         {
-            Bank_Account toWithdrawFrom = FindBankAccountFromDatabaseWithOutDecryption(accNo);
 
+            // Get the call stack
+            StackTrace stackTrace = new StackTrace();
+            // Check if the caller is the main method or part of the system
+            if (!IsSystemOrMainCaller(stackTrace))
+            {
+                // Log the event: Unauthorized caller
+                Logger.WriteEvent($"Withdrawal failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
+                return false;
+            }
+
+
+            Bank_Account toWithdrawFrom = FindBankAccountFromDatabaseWithOutDecryption(accNo);
 
             if (toWithdrawFrom == null)
             {
                 // Log the event: Account not found
                 Logger.WriteEvent($"Withdrawal failed. Account not found: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+
+                // Log the stack trace
+                LogStackTrace();
+
                 return false;
             }
 
-                // Check if withdrawal is possible based on the account type
-                
+            // Check if withdrawal is possible based on the account type
+
             if (!toWithdrawFrom.CanWithdrawCC(amountToWithdraw))
             {
                 // Log the event: Insufficient funds
@@ -501,63 +516,30 @@ namespace Banking_Application
             return true;
         }
 
-
-
-        public bool Withdraw2(String accNo, double amountToWithdraw)
+        private bool IsSystemOrMainCaller(StackTrace stackTrace)
         {
+            // Get the calling method from the stack trace
+            MethodBase callingMethod = stackTrace.GetFrame(1)?.GetMethod();
 
-            Bank_Account toWithdrawFrom = null;
-            bool result = false;
+            // Check if the caller is the main method or part of the system
+            return callingMethod?.Name == "Main" || callingMethod?.DeclaringType?.Namespace == "System";
+        }
 
-            // Get Bank Account 
-            Bank_Account ba1 = FindBankAccountFromDatabaseWithOutDecryption(accNo);
+        private void LogStackTrace()
+        {
+            // Log the stack trace
+            StackTrace stackTrace = new StackTrace(true);
+            StackFrame[] stackFrames = stackTrace.GetFrames();
 
-
-            if (toWithdrawFrom == null || result == false)
+            // Log the stack trace
+            if (stackFrames != null)
             {
-               // Log the event: Withdrawal failed
-                Logger.WriteEvent($"Withdrawal failed for account: {accNo}.", EventLogEntryType.Error, DateTime.Now);
-
-                // Get the stack trace information
-                StackTrace stackTrace = new StackTrace(true);
-                StackFrame[] stackFrames = stackTrace.GetFrames();
-
-                // Log the stack trace
-                if (stackFrames != null)
+                foreach (var frame in stackFrames)
                 {
-                    foreach (var frame in stackFrames)
-                    {
-                        Logger.WriteEvent($"   at {frame.GetMethod()} in {frame.GetFileName()}:{frame.GetFileLineNumber()}", EventLogEntryType.Error, DateTime.Now);
-                    }
+                    Logger.WriteEvent($"   at {frame.GetMethod()} in {frame.GetFileName()}:{frame.GetFileLineNumber()}", EventLogEntryType.Error, DateTime.Now);
                 }
-
-                return false;
-            }
-          
-            else
-            {
-                // Log the event: Withdrawal successful
-                Logger.WriteEvent($"Withdrawal successful for account: {accNo}.", EventLogEntryType.Information, DateTime.Now);
-
-
-                using (var connection = getDatabaseConnection())
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-
-                    command.CommandText = "UPDATE Bank_Accounts SET balance = @balance WHERE accountNo = @accountNo";
-                    command.Parameters.AddWithValue("@balance", toWithdrawFrom.balance);
-                    command.Parameters.AddWithValue("@accountNo", toWithdrawFrom.accountNo);
-                    command.ExecuteNonQuery();
-                }
-
-                toWithdrawFrom = null;
-                GC.Collect();
-
-                return true;
             }
 
         }
-
     }
 }
