@@ -1,0 +1,471 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Compiler",
+        "version": "4.8.0.0",
+        "fileVersion": "4.8.0-3.23524.11 (f43cd10b)",
+        "semanticVersion": "4.8.0",
+        "language": "en-US"
+      },
+      "results": [
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'global::System.Runtime.Versioning.TargetFrameworkAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/obj/Release/net6.0/.NETCoreApp,Version=v6.0.AssemblyAttributes.cs",
+                "region": {
+                  "startLine": 4,
+                  "startColumn": 12,
+                  "endLine": 4,
+                  "endColumn": 70
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyCompanyAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/obj/Release/net6.0/SSD%20Assignment%20-%20Banking%20Application.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 12,
+                  "endLine": 14,
+                  "endColumn": 54
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyConfigurationAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/obj/Release/net6.0/SSD%20Assignment%20-%20Banking%20Application.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 12,
+                  "endLine": 15,
+                  "endColumn": 60
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyFileVersionAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/obj/Release/net6.0/SSD%20Assignment%20-%20Banking%20Application.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 12,
+                  "endLine": 16,
+                  "endColumn": 58
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyInformationalVersionAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/obj/Release/net6.0/SSD%20Assignment%20-%20Banking%20Application.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 67
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyProductAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/obj/Release/net6.0/SSD%20Assignment%20-%20Banking%20Application.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 18,
+                  "startColumn": 12,
+                  "endLine": 18,
+                  "endColumn": 54
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyTitleAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/obj/Release/net6.0/SSD%20Assignment%20-%20Banking%20Application.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 12,
+                  "endLine": 19,
+                  "endColumn": 52
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyVersionAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/obj/Release/net6.0/SSD%20Assignment%20-%20Banking%20Application.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 12,
+                  "endLine": 20,
+                  "endColumn": 54
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'global::System.Runtime.Versioning.TargetFrameworkAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs",
+                "region": {
+                  "startLine": 4,
+                  "startColumn": 12,
+                  "endLine": 4,
+                  "endColumn": 70
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyCompanyAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/obj/Debug/net8.0/Secure-Software-Development-COMP08141.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 12,
+                  "endLine": 13,
+                  "endColumn": 54
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyConfigurationAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/obj/Debug/net8.0/Secure-Software-Development-COMP08141.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 12,
+                  "endLine": 14,
+                  "endColumn": 60
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyFileVersionAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/obj/Debug/net8.0/Secure-Software-Development-COMP08141.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 12,
+                  "endLine": 15,
+                  "endColumn": 58
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyInformationalVersionAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/obj/Debug/net8.0/Secure-Software-Development-COMP08141.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 12,
+                  "endLine": 16,
+                  "endColumn": 67
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyProductAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/obj/Debug/net8.0/Secure-Software-Development-COMP08141.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 54
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyTitleAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/obj/Debug/net8.0/Secure-Software-Development-COMP08141.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 18,
+                  "startColumn": 12,
+                  "endLine": 18,
+                  "endColumn": 52
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0579",
+          "level": "error",
+          "message": "Duplicate 'System.Reflection.AssemblyVersionAttribute' attribute",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/obj/Debug/net8.0/Secure-Software-Development-COMP08141.AssemblyInfo.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 12,
+                  "endLine": 19,
+                  "endColumn": 54
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0234",
+          "level": "error",
+          "message": "The type or namespace name 'Data' does not exist in the namespace 'Microsoft' (are you missing an assembly reference?)",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/Data_Access_Layer.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 17,
+                  "endLine": 12,
+                  "endColumn": 21
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0246",
+          "level": "error",
+          "message": "The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?)",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/EventLoggerHendler.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 7,
+                  "endLine": 9,
+                  "endColumn": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS1069",
+          "level": "error",
+          "message": "The type name 'PerformanceCounter' could not be found in the namespace 'System.Diagnostics'. This type has been forwarded to assembly 'System.Diagnostics.PerformanceCounter, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' Consider adding a reference to that assembly.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/CpuUsageChecker.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 17,
+                  "endLine": 12,
+                  "endColumn": 35
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS1069",
+          "level": "error",
+          "message": "The type name 'EventRecord' could not be found in the namespace 'System.Diagnostics.Eventing.Reader'. This type has been forwarded to assembly 'System.Diagnostics.EventLog, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' Consider adding a reference to that assembly.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/EventLoggerHendler.cs",
+                "region": {
+                  "startLine": 34,
+                  "startColumn": 23,
+                  "endLine": 34,
+                  "endColumn": 34
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS1069",
+          "level": "error",
+          "message": "The type name 'EventLogEntryType' could not be found in the namespace 'System.Diagnostics'. This type has been forwarded to assembly 'System.Diagnostics.EventLog, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' Consider adding a reference to that assembly.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/EventLoggerHendler.cs",
+                "region": {
+                  "startLine": 69,
+                  "startColumn": 55,
+                  "endLine": 69,
+                  "endColumn": 72
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0246",
+          "level": "error",
+          "message": "The type or namespace name 'SqliteConnection' could not be found (are you missing a using directive or an assembly reference?)",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/jessi/OneDrive/Documentos/Secure-Software-Development-COMP08141/SSD%20Assignment%20-%20Banking%20Application/Data_Access_Layer.cs",
+                "region": {
+                  "startLine": 40,
+                  "startColumn": 17,
+                  "endLine": 40,
+                  "endColumn": 33
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "CS0234": {
+          "id": "CS0234",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0234)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        },
+        "CS0246": {
+          "id": "CS0246",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0246)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        },
+        "CS0579": {
+          "id": "CS0579",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0579)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        },
+        "CS1069": {
+          "id": "CS1069",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS1069)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
