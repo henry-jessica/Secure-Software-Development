@@ -4,6 +4,13 @@ using System.Linq;
 
 namespace Banking_Application
 {
+    // Enums
+    internal enum AccountType
+    {
+        CurrentAccount = 1,
+        SavingsAccount = 2
+    }
+
     public class Program
     {
         public static void Main(string[] args)
@@ -15,6 +22,7 @@ namespace Banking_Application
 
             do
             {
+               // Console.Clear(); // Clear console between menu options
 
                 Console.WriteLine("");
                 Console.WriteLine("***Banking Application Menu***");
@@ -30,27 +38,27 @@ namespace Banking_Application
                 switch(option)
                 {
                     case "1":
-                        String accountType = "";
                         int loopCount = 0;
-                        
+                        int accountType = 0; // Changed because now it is enum type
+
                         do
                         {
 
                            if(loopCount > 0)
-                                Console.WriteLine("INVALID OPTION CHOSEN - PLEASE TRY AGAIN");
+                            Console.WriteLine("INVALID OPTION CHOSEN - PLEASE TRY AGAIN");
 
                             Console.WriteLine("");
                             Console.WriteLine("***Account Types***:");
                             Console.WriteLine("1. Current Account.");
                             Console.WriteLine("2. Savings Account.");
                             Console.WriteLine("CHOOSE OPTION:");
-                            accountType = Console.ReadLine();
+                            accountType = Convert.ToInt32(Console.ReadLine());
 
                             loopCount++;
+                         } while (!(accountType == (int)AccountType.CurrentAccount || accountType == (int)AccountType.SavingsAccount)) ;
 
-                        } while (!(accountType.Equals("1") || accountType.Equals("2")));
 
-                        String name = "";
+                String name = "";
                         loopCount = 0;
 
                         do
@@ -198,7 +206,7 @@ namespace Banking_Application
                         Console.WriteLine("Enter Account Number: ");
                         accNo = Console.ReadLine();
 
-                        ba = dal.LoadBankAccountFromDatabaseWithOutDecryption(accNo);
+                        ba = dal.FindBankAccountFromDatabaseWithOutDecryption(accNo);
 
                         if (ba is null)
                         {
@@ -248,17 +256,7 @@ namespace Banking_Application
                     case "3":
                         Console.WriteLine("Enter Account Number: ");
                         accNo = Console.ReadLine();
-
-                        ba = dal.FindBankAccountByAccNo(accNo);
-
-                        if(ba is null) 
-                        {
-                            Console.WriteLine("Account Does Not Exist");
-                        }
-                        else
-                        {
-                            Console.WriteLine(ba.ToString());
-                        }
+                        dal.PrintBankAccountDetails(accNo);
 
                         break;
                     case "4": //Lodge
