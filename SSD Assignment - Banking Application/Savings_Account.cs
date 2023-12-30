@@ -25,6 +25,14 @@ namespace Banking_Application
             return base.balance;
         }
 
+        public override bool CanWithdrawCC(double amountToWithdraw)
+        {
+            // This is a generic implementation. You should override this method in derived classes
+            // to implement account-specific withdrawal rules.
+            // For a generic savings account, allow withdrawal if there are sufficient funds.
+            return balance - amountToWithdraw >= 0;
+        }
+
         public override bool withdraw(double amountToWithdraw)
         {
             double avFunds = getAvailableFunds();

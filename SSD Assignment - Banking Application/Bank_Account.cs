@@ -40,6 +40,17 @@ namespace Banking_Application
 
         }
 
+        public virtual bool CanWithdrawSaving(double amountToWithdraw)
+        {
+            // This is a generic implementation. You should override this method in derived classes
+            // to implement account-specific withdrawal rules.
+            // For a generic bank account, allow withdrawal if there are sufficient funds.
+            return balance - amountToWithdraw >= 0;
+        }
+
+
+        public abstract bool CanWithdrawCC(double amountToWithdraw);
+
         public abstract bool withdraw(double amountToWithdraw);
 
         public abstract double getAvailableFunds();

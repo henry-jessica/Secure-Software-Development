@@ -449,29 +449,96 @@ namespace Banking_Application
             }
         }
 
-
         public bool Withdraw(String accNo, double amountToWithdraw)
+        {
+            Bank_Account toWithdrawFrom = FindBankAccountFromDatabaseWithOutDecryption(accNo);
+
+
+            if (toWithdrawFrom == null)
+            {
+                // Log the event: Account not found
+                Logger.WriteEvent($"Withdrawal failed. Account not found: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+                return false;
+            }
+
+                // Check if withdrawal is possible based on the account type
+                
+            if (!toWithdrawFrom.CanWithdrawCC(amountToWithdraw))
+            {
+                // Log the event: Insufficient funds
+                Logger.WriteEvent($"Withdrawal failed. Insufficient funds for account: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+                return false;
+            }
+
+            // Perform withdrawal
+            bool result = toWithdrawFrom.withdraw(amountToWithdraw);
+
+            if (!result)
+            {
+                // Log the event: Withdrawal failed
+                Logger.WriteEvent($"Withdrawal failed for account: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+                return false;
+            }
+
+            // Log the event: Withdrawal successful
+            Logger.WriteEvent($"Withdrawal successful for account: {accNo}.", EventLogEntryType.Information, DateTime.Now);
+
+            // Update the balance in the database
+            using (var connection = getDatabaseConnection())
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "UPDATE Bank_Accounts SET balance = @balance WHERE accountNo = @accountNo";
+                command.Parameters.AddWithValue("@balance", toWithdrawFrom.balance);
+                command.Parameters.AddWithValue("@accountNo", toWithdrawFrom.accountNo);
+                command.ExecuteNonQuery();
+            }
+
+            // Clear sensitive information
+            toWithdrawFrom = null;
+            GC.Collect();
+
+            return true;
+        }
+
+
+
+        public bool Withdraw2(String accNo, double amountToWithdraw)
         {
 
             Bank_Account toWithdrawFrom = null;
             bool result = false;
 
-            foreach (Bank_Account ba in accounts)
-            {
+            // Get Bank Account 
+            Bank_Account ba1 = FindBankAccountFromDatabaseWithOutDecryption(accNo);
 
-                if (ba.accountNo.Equals(accNo))
-                {
-                    result = ba.withdraw(amountToWithdraw);
-                    toWithdrawFrom = ba;
-                    break;
-                }
-
-            }
 
             if (toWithdrawFrom == null || result == false)
+            {
+               // Log the event: Withdrawal failed
+                Logger.WriteEvent($"Withdrawal failed for account: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+
+                // Get the stack trace information
+                StackTrace stackTrace = new StackTrace(true);
+                StackFrame[] stackFrames = stackTrace.GetFrames();
+
+                // Log the stack trace
+                if (stackFrames != null)
+                {
+                    foreach (var frame in stackFrames)
+                    {
+                        Logger.WriteEvent($"   at {frame.GetMethod()} in {frame.GetFileName()}:{frame.GetFileLineNumber()}", EventLogEntryType.Error, DateTime.Now);
+                    }
+                }
+
                 return false;
+            }
+          
             else
             {
+                // Log the event: Withdrawal successful
+                Logger.WriteEvent($"Withdrawal successful for account: {accNo}.", EventLogEntryType.Information, DateTime.Now);
+
 
                 using (var connection = getDatabaseConnection())
                 {

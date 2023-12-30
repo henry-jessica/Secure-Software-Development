@@ -21,13 +21,20 @@ namespace Banking_Application
             this.overdraftAmount = overdraftAmount;
         }
 
+        public override bool CanWithdrawCC(double amountToWithdraw)
+        {
+            double avFunds = getAvailableFunds();
+            return amountToWithdraw <= avFunds;
+        }
+
         public override bool withdraw(double amountToWithdraw)
         {
             double avFunds = getAvailableFunds();
 
             if (avFunds >= amountToWithdraw)
             {
-                balance -= amountToWithdraw;
+                    balance =-amountToWithdraw;
+
                 return true;
             }
 

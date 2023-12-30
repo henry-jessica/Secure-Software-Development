@@ -341,6 +341,10 @@ namespace Banking_Application
 
                                 Console.WriteLine("Insufficient Funds Available.");
                             }
+                            else
+                            {
+                                Console.WriteLine("Success - Take your money.");
+                            }
                         }
                         break;
                     case "6":
