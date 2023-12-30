@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 
 namespace Banking_Application
 {
-    public static class AesEncryptionHandler
+    public static class AesEncryptionHendler
     {
         public static Aes GetOrCreateAesEncryptionKeyCBC(byte[] iv)
         {
@@ -67,9 +67,11 @@ namespace Banking_Application
         {
 
             byte[] ciphertext_data;
+
             ICryptoTransform encryptor = aes.CreateEncryptor();
 
             MemoryStream msEncrypt = new MemoryStream();
+
             CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
             csEncrypt.Write(plaintext_data, 0, plaintext_data.Length);
             csEncrypt.Dispose();
@@ -78,6 +80,7 @@ namespace Banking_Application
             msEncrypt.Dispose();
 
             return ciphertext_data;
+
         }
 
         public static byte[] Decrypt(byte[] ciphertext_data, Aes aes)
@@ -94,7 +97,6 @@ namespace Banking_Application
 
             plaintext_data = msDecrypt.ToArray();
             msDecrypt.Dispose();
-
             return plaintext_data;
 
         }
@@ -102,21 +104,21 @@ namespace Banking_Application
         public static string EncryptAccountNumber(string text)
         {
             Aes aes = GetOrCreateAesEncryptionKeyECB();
-            byte[] plaintextData = Encoding.ASCII.GetBytes(text);
-            byte[] ciphertextData = Encrypt(plaintextData, aes);
 
+            byte[] plaintext_data = Encoding.ASCII.GetBytes(text);
+            byte[] ciphertext_data = Encrypt(plaintext_data, aes);
             aes.Dispose();
-            return Convert.ToBase64String(ciphertextData);
-        }
 
+            return Convert.ToBase64String(ciphertext_data);
+        }
         public static string DecryptAccountNumber(string text)
         {
             Aes aes = GetOrCreateAesEncryptionKeyECB();
-            byte[] ciphertextData = Convert.FromBase64String(text);
-            byte[] plaintextData = Decrypt(ciphertextData, aes);
-
+            byte[] ciphertext_data = Convert.FromBase64String(text);
+            byte[] plaintext_data = Decrypt(ciphertext_data, aes);
             aes.Dispose();
-            return Encoding.ASCII.GetString(plaintextData);
+
+            return Encoding.ASCII.GetString(plaintext_data);
         }
 
 
