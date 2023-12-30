@@ -293,12 +293,15 @@ namespace Banking_Application
             }
         }
 
-        public bool closeBankAccount(String accNo) 
+        public bool closeBankAccount(String encryptedAccNo) 
         {
-            // Log the event: Attempting to find bank account by account number
-            Logger.WriteEvent($"Attempting to delete bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
 
-            String encryptedAccNo = AesEncryptionHandler.EncryptAccountNumber(accNo);
+            // Log the event: Attempting to find bank account by account number
+            String accNo = AesEncryptionHandler.EncryptAccountNumber(encryptedAccNo); // Decrypted data just to make log 
+            Logger.WriteEvent($"Attempting to delete bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
+            // Set accNo to null after using it
+            accNo = null;
+
 
             if (!File.Exists(Data_Access_Layer.databaseName))
                 initialiseDatabase();
@@ -307,8 +310,6 @@ namespace Banking_Application
                 return false;
             else
             {
-               // accounts.Remove(toRemove);
-
                 using (var connection = getDatabaseConnection())
                 {
                     connection.Open();
@@ -367,6 +368,61 @@ namespace Banking_Application
 
         }
 
+
+        public Bank_Account LoadBankAccountFromDatabaseWithOutDecryption(String accNo)
+        {
+            // Log the event: Attempting to find bank account by account number
+            Logger.WriteEvent($"Attempting to find bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
+
+            using (var connection = getDatabaseConnection())
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT * FROM Bank_Accounts WHERE accountNo = @accountNo";
+                command.Parameters.AddWithValue("@accountNo", AesEncryptionHandler.EncryptAccountNumber(accNo));
+
+                SqliteDataReader dr = command.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    int accountType = dr.GetInt16(7);
+
+                    if (accountType == Account_Type.Current_Account)
+                    {
+                        Current_Account ca = new Current_Account();
+
+                        ca.accountNo = dr.GetString(0);
+                        ca.name = dr.GetString(1);
+                        ca.address_line_1 = dr.GetString(2);
+                        ca.address_line_2 = dr.GetString(3);
+                        ca.address_line_3 = dr.GetString(4);
+                        ca.town = dr.GetString(5);
+                        ca.balance = dr.GetDouble(6);
+                        ca.overdraftAmount = dr.GetDouble(8);
+
+                        return ca;
+                    }
+                    else
+                    {
+                        Savings_Account sa = new Savings_Account();
+
+                        sa.accountNo = AesEncryptionHandler.DecryptAccountNumber(dr.GetString(0));
+                        sa.name = dr.GetString(1);
+                        sa.address_line_1 = dr.GetString(2);
+                        sa.address_line_2 = dr.GetString(3);
+                        sa.address_line_3 = dr.GetString(4);
+                        sa.town = dr.GetString(5);
+                        sa.balance = dr.GetDouble(6);
+                        sa.interestRate = dr.GetDouble(9);
+
+                        return sa;
+                    }
+                }
+            }
+
+            // Account not found in the database
+            return null;
+        }
 
         public bool withdraw(String accNo, double amountToWithdraw)
         {

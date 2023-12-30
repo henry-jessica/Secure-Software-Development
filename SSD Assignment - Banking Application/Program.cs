@@ -199,15 +199,27 @@ namespace Banking_Application
                         Console.WriteLine("Enter Account Number: ");
                         accNo = Console.ReadLine();
 
-                        ba = dal.findBankAccountByAccNo(accNo);
+                        ba = dal.LoadBankAccountFromDatabaseWithOutDecryption(accNo);
 
                         if (ba is null)
                         {
                             Console.WriteLine("Account Does Not Exist");
                         }
+                        else if(ba.balance > 0){
+                            Console.WriteLine("Account has a positive balance €{0:0.00}. Please withdraw the funds before closing the account.", ba.balance);
+                        }
+                        else if (ba.balance < 0)
+                        {
+                            Console.WriteLine("Cannot close the account. The account balance is negative (€{0:0.00}). Please make a lodgement to bring the balance to positive before closing the account.", Math.Abs(ba.balance));
+                        }
                         else
                         {
-                            Console.WriteLine(ba.ToString());
+
+                            Bank_Account ba_details = dal.findBankAccountByAccNo(accNo);
+                            Console.WriteLine(ba_details.ToString());
+                            // clean after use it 
+                            ba_details = null;
+                            GC.Collect(); 
 
                             String ans = "";
 
@@ -220,7 +232,7 @@ namespace Banking_Application
                                 switch (ans)
                                 {
                                     case "Y":
-                                    case "y": dal.closeBankAccount(accNo);
+                                    case "y": dal.closeBankAccount(ba.accountNo); //encrypted bank account number 
                                               Console.WriteLine("Account successfully deleted.");
                                         break;
                                     case "N":
