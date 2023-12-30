@@ -37,10 +37,10 @@ namespace Banking_Application
                 if (cpuUsage > cpuThreshold)
                 {
                     Console.WriteLine($"High CPU usage ({cpuUsage}%). Task execution delayed.");
-                    // You can add additional logic or delay the execution as needed
                 }
 
-                // Console.Clear(); // Clear console between menu options
+                // Console.Clear(); 
+
                 else
                 {
                     Console.WriteLine("");
@@ -244,7 +244,9 @@ namespace Banking_Application
 
                                 Bank_Account ba_details = dal.FindBankAccountByAccNo(accNo);
                                 Console.WriteLine(ba_details.ToString());
+                                
                                 // clean after use it 
+                                
                                 ba_details = null;
                                 GC.Collect();
 

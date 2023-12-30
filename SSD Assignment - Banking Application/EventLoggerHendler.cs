@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 using System.Net;
 using Newtonsoft.Json;
 
-// NOTE: 
-// Here I am saving logs in my win system, I am also saving to my github gists 
+//  NOTE: ***************************************************
+//  I am currently storing logs on my Windows system adm Viwer, and additionally, I am archiving them on my GitHub Gists for broader accessibility and version control.
+//  ***************************************************
 
 namespace Banking_Application
 {
@@ -19,7 +20,7 @@ namespace Banking_Application
         private static string sourceName = "BankAppSource";
 
         // Save the vents in my GitHub Gists
-        private static string githubToken = "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";
+        private static string githubToken = "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"; // This key expired, create a new key with right Gits permission to see the logs 
 
 
         static Logger()
@@ -93,8 +94,8 @@ namespace Banking_Application
         }
 
 
-        //Upload to git file called log.txt
 
+        //Update to git file called log.txt
         public static async Task UploadToGitHubGist(string content)
         {
             try
@@ -103,11 +104,9 @@ namespace Banking_Application
                 {
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"token {githubToken}");
 
-                    // Get the Gist ID from the Gist URL or provide it directly
-                    string gistId = "612bb77c0de7ba3587046ca6c939c56c";
 
                     // Construct the update Gist API URL
-                    string updateUrl = $"https://api.github.com/gists/{gistId}";
+                    string updateUrl = $"https://api.github.com/gists";
 
                     // Get the existing Gist content
                     var existingGist = await httpClient.GetStringAsync(updateUrl);

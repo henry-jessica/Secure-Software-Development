@@ -115,8 +115,10 @@ namespace Banking_Application
             {
                 connection.Open();
                 var command = connection.CreateCommand();
-                command.CommandText = "SELECT * FROM Bank_Accounts WHERE accountNo = @accountNo";
+                // Remove Selected All * 
+                command.CommandText = "SELECT accountNo,name, address_line_1, address_line_2, address_line_3, town, balance, accountType, overdraftAmount, interestRate, iv FROM Bank_Accounts WHERE accountNo = @accountNo";
                 command.Parameters.AddWithValue("@accountNo", encryptedAccNo);
+
 
                 SqliteDataReader dr = command.ExecuteReader();
 
@@ -387,7 +389,7 @@ namespace Banking_Application
             {
                 connection.Open();
                 var command = connection.CreateCommand();
-                command.CommandText = "SELECT * FROM Bank_Accounts WHERE accountNo = @accountNo";
+                command.CommandText = "SELECT accountNo,name, address_line_1, address_line_2, address_line_3, town, balance, accountType, overdraftAmount, interestRate, iv FROM Bank_Accounts WHERE accountNo = @accountNo";
                 command.Parameters.AddWithValue("@accountNo", AesEncryptionHandler.EncryptAccountNumber(accNo));
 
                 SqliteDataReader dr = command.ExecuteReader();
@@ -558,19 +560,17 @@ namespace Banking_Application
         private bool IsAllowedCaller(StackTrace stackTrace)
         {
             // Get the calling method from the stack trace
-            MethodBase callingMethod = stackTrace.GetFrame(2)?.GetMethod();
+
+            MethodBase callingMethod = stackTrace.GetFrame(1).GetMethod(); 
 
             // Check if the caller is one of the allowed methods
-            return callingMethod?.Name == "Withdraw" || callingMethod?.Name == "Lodge";
+            return callingMethod?.Name == "Withdraw" || callingMethod?.Name == "Lodge" || callingMethod?.Name == "Lodge";
         }
 
         private bool IsSystemAndMainCaller(StackTrace stackTrace)
         {
-            // Get the calling method from the stack trace
-            MethodBase callingMethod = stackTrace.GetFrame(1)?.GetMethod();
-
             // Check if the caller is the main method or part of the system
-            return callingMethod?.Name == "Main" || callingMethod?.DeclaringType?.Namespace == "System";
+            return stackTrace.GetFrame(1).GetMethod().Name == "Main";
         }
 
         private void LogStackTrace()
