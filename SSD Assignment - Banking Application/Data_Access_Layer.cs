@@ -18,7 +18,6 @@ namespace Banking_Application
 
         private List<Bank_Account> accounts;
         public static String databaseName = "Banking Database.db";
-        //private static Data_Access_Layer instance = new Data_Access_Layer();
 
         // provide a thread-safe way to implement lazy initialization
         private static readonly Lazy<Data_Access_Layer> lazyInstance =  new Lazy<Data_Access_Layer>(() => new Data_Access_Layer());
@@ -29,7 +28,7 @@ namespace Banking_Application
             accounts = new List<Bank_Account>();
         }
 
-       //Using lock keyword or by using Lazy<T> for lazy initialization.
+        //Using lock keyword or by using Lazy<T> for lazy initialization.
         public static Data_Access_Layer getInstance()
         {
             return lazyInstance.Value;
@@ -46,7 +45,6 @@ namespace Banking_Application
             }.ToString();
 
             return new SqliteConnection(databaseConnectionString);
-
         }
 
         private void initialiseDatabase()
@@ -88,21 +86,19 @@ namespace Banking_Application
 
             String encryptedAccNo = AesEncryptionHandler.EncryptAccountNumber(accNo);
 
-
-            Bank_Account ba = loadBankAccount(encryptedAccNo);
+            Bank_Account ba = LoadBankAccountFromDatabase(encryptedAccNo);
 
             if (ba == null)
                 return null;
             else
                 return ba;
-
-         
         }
 
-        public Bank_Account loadBankAccount(String encryptedAccNo)
+        public Bank_Account LoadBankAccountFromDatabase(String encryptedAccNo)
         {
-            //TO DO
-            initialiseDatabase();
+            // Ensure the database is initialized
+            if (!File.Exists(Data_Access_Layer.databaseName))
+                initialiseDatabase();
 
             // Check if the account is already loaded in the accounts list
             Bank_Account existingAccount = accounts.FirstOrDefault(acc => acc.accountNo.Equals(encryptedAccNo, StringComparison.OrdinalIgnoreCase));
