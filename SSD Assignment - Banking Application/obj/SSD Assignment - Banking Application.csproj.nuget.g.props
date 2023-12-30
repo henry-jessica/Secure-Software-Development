@@ -12,4 +12,7 @@
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <SourceRoot Include="C:\Users\jessi\.nuget\packages\" />
   </ItemGroup>
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <PkgMSBuild_SonarQube_Runner_Tool Condition=" '$(PkgMSBuild_SonarQube_Runner_Tool)' == '' ">C:\Users\jessi\.nuget\packages\msbuild.sonarqube.runner.tool\4.8.0</PkgMSBuild_SonarQube_Runner_Tool>
+  </PropertyGroup>
 </Project>

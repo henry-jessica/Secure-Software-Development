@@ -46,9 +46,19 @@ C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Ass
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\SSD Assignment - Banking Application.dll
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\SSD Assignment - Banking Application.pdb
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\Microsoft.Data.Sqlite.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\Newtonsoft.Json.dll
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\SQLitePCLRaw.batteries_v2.dll
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\SQLitePCLRaw.core.dll
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\SQLitePCLRaw.provider.e_sqlite3.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\System.Configuration.ConfigurationManager.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\System.Diagnostics.EventLog.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\System.Diagnostics.PerformanceCounter.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\System.Drawing.Common.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\System.Security.Permissions.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\System.Windows.Extensions.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\alpine-arm\native\libe_sqlite3.so
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\alpine-arm64\native\libe_sqlite3.so
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\alpine-x64\native\libe_sqlite3.so
@@ -71,6 +81,13 @@ C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Ass
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win-arm64\native\e_sqlite3.dll
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win-x64\native\e_sqlite3.dll
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win-x86\native\e_sqlite3.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Diagnostics.EventLog.Messages.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Diagnostics.EventLog.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Diagnostics.PerformanceCounter.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\obj\Debug\net6.0\SSD Assignment - Banking Application.csproj.AssemblyReference.cache
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\obj\Debug\net6.0\SSD Assignment - Banking Application.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\jessi\OneDrive\Documentos\Secure-Software-Development-COMP08141\SSD Assignment - Banking Application\obj\Debug\net6.0\SSD Assignment - Banking Application.AssemblyInfoInputs.cache

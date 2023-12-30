@@ -186,6 +186,21 @@ namespace Banking_Application
 
         public String AddBankAccount(Bank_Account ba)
         {
+
+            // Get the call stack
+            StackTrace stackTrace = new StackTrace();
+
+            // Check if the caller is the main method or part of the system
+            if (!IsSystemAndMainCaller(stackTrace))
+            {
+                // Log Tracer 
+                LogStackTrace();
+
+                // Log the event: Unauthorized caller
+                Logger.WriteEvent($"AddBankAccount failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
+                return null;
+            }
+
             // Ensure the database is initialized
             if (!File.Exists(Data_Access_Layer.databaseName))
                 initialiseDatabase();
@@ -328,35 +343,32 @@ namespace Banking_Application
 
         public bool Lodge(String accNo, double amountToLodge)
         {
-
-            Bank_Account toLodgeTo = null;
-
-            foreach (Bank_Account ba in accounts)
+            // Get the call stack
+            StackTrace stackTrace = new StackTrace();
+            // Check if the caller is the main method or part of the system
+            if (!IsSystemAndMainCaller(stackTrace))
             {
-
-                if (ba.accountNo.Equals(accNo))
-                {
-                    ba.lodge(amountToLodge);
-                    toLodgeTo = ba;
-                    break;
-                }
-
+                // Log the event: Unauthorized caller
+                Logger.WriteEvent($"Lodge failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
+                return false;
             }
 
+            Bank_Account toLodgeTo = FindBankAccountFromDatabaseWithOutDecryption(accNo);
+
             if (toLodgeTo == null)
+            {
+                // Log the event: Account not found
+                Logger.WriteEvent($"Lodge failed. Account not found: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+
+                // Log the stack trace
+                LogStackTrace();
+
                 return false;
+            }
             else
             {
-
-                using (var connection = getDatabaseConnection())
-                {
-                    connection.Open();
-                    var command = connection.CreateCommand();
-                    command.CommandText = "UPDATE Bank_Accounts SET balance = @balance WHERE accountNo = @accountNo";
-                    command.Parameters.AddWithValue("@balance", toLodgeTo.balance);
-                    command.Parameters.AddWithValue("@accountNo", toLodgeTo.accountNo);
-                    command.ExecuteNonQuery();
-                }
+                // Update the balance in the database
+                UpdateAccountBalanceInDatabase(toLodgeTo.accountNo, toLodgeTo.balance + amountToLodge);
 
                 // Clear sensitive information 
                 toLodgeTo = null;
@@ -364,7 +376,6 @@ namespace Banking_Application
 
                 return true;
             }
-
         }
 
         public Bank_Account FindBankAccountFromDatabaseWithOutDecryption(String accNo)
@@ -422,8 +433,6 @@ namespace Banking_Application
             return null;
         }
 
-        // HERE I AM APPLYING SOME REFLACTION
-
         public void PrintBankAccountDetails(string accNo)
         {
             Bank_Account account = FindBankAccountByAccNo(accNo);
@@ -455,7 +464,7 @@ namespace Banking_Application
             // Get the call stack
             StackTrace stackTrace = new StackTrace();
             // Check if the caller is the main method or part of the system
-            if (!IsSystemOrMainCaller(stackTrace))
+            if (!IsSystemAndMainCaller(stackTrace))
             {
                 // Log the event: Unauthorized caller
                 Logger.WriteEvent($"Withdrawal failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
@@ -499,15 +508,19 @@ namespace Banking_Application
             Logger.WriteEvent($"Withdrawal successful for account: {accNo}.", EventLogEntryType.Information, DateTime.Now);
 
             // Update the balance in the database
-            using (var connection = getDatabaseConnection())
-            {
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText = "UPDATE Bank_Accounts SET balance = @balance WHERE accountNo = @accountNo";
-                command.Parameters.AddWithValue("@balance", toWithdrawFrom.balance);
-                command.Parameters.AddWithValue("@accountNo", toWithdrawFrom.accountNo);
-                command.ExecuteNonQuery();
-            }
+            //using (var connection = getDatabaseConnection())
+            //{
+            //    connection.Open();
+            //    var command = connection.CreateCommand();
+            //    command.CommandText = "UPDATE Bank_Accounts SET balance = @balance WHERE accountNo = @accountNo";
+            //    command.Parameters.AddWithValue("@balance", toWithdrawFrom.balance);
+            //    command.Parameters.AddWithValue("@accountNo", toWithdrawFrom.accountNo);
+            //    command.ExecuteNonQuery();
+            //}
+
+            // Update the balance in the database
+            UpdateAccountBalanceInDatabase(toWithdrawFrom.accountNo, toWithdrawFrom.balance);
+
 
             // Clear sensitive information
             toWithdrawFrom = null;
@@ -516,7 +529,42 @@ namespace Banking_Application
             return true;
         }
 
-        private bool IsSystemOrMainCaller(StackTrace stackTrace)
+        private void UpdateAccountBalanceInDatabase(string accountNo, double newBalance)
+        {
+            // Get the stack trace
+            StackTrace stackTrace = new StackTrace();
+
+            // Check if the caller is the main method or part of the system
+            if (!IsAllowedCaller(stackTrace))
+            {
+                // Log the event: Unauthorized caller
+                Logger.WriteEvent($"Update failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
+                LogStackTrace(); 
+
+                return;
+            }
+
+            using (var connection = getDatabaseConnection())
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "UPDATE Bank_Accounts SET balance = @balance WHERE accountNo = @accountNo";
+                command.Parameters.AddWithValue("@balance", newBalance);
+                command.Parameters.AddWithValue("@accountNo", accountNo);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private bool IsAllowedCaller(StackTrace stackTrace)
+        {
+            // Get the calling method from the stack trace
+            MethodBase callingMethod = stackTrace.GetFrame(2)?.GetMethod();
+
+            // Check if the caller is one of the allowed methods
+            return callingMethod?.Name == "Withdraw" || callingMethod?.Name == "Lodge";
+        }
+
+        private bool IsSystemAndMainCaller(StackTrace stackTrace)
         {
             // Get the calling method from the stack trace
             MethodBase callingMethod = stackTrace.GetFrame(1)?.GetMethod();
