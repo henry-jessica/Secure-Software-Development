@@ -33,7 +33,7 @@ namespace Banking_Application
 
             if (avFunds >= amountToWithdraw)
             {
-                    balance =-amountToWithdraw;
+                    balance = avFunds-amountToWithdraw - overdraftAmount;
 
                 return true;
             }
