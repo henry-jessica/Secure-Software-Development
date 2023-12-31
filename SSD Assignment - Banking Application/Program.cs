@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 
 namespace Banking_Application
@@ -15,15 +16,13 @@ namespace Banking_Application
     {
         private static CpuUsageChecker cpuUsageChecker = new CpuUsageChecker();
 
-
+        // The STAThread attribute is used to specify that the COM threading model for this application is single-threaded.
         [STAThread]
         public static void Main(string[] args)
         {
 
             Data_Access_Layer dal = Data_Access_Layer.getInstance();
-
             bool running = true;
-
 
             do
             {
@@ -219,6 +218,11 @@ namespace Banking_Application
                             String accNo = dal.AddBankAccount(ba);
 
                             Console.WriteLine("New Account Number Is: " + accNo);
+
+                            // Clean 
+                            accNo = null;
+                            GC.Collect();
+
 
                             break;
                         case "2":
