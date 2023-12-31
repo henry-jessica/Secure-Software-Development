@@ -83,10 +83,11 @@ namespace Banking_Application
 
         }
 
-        public static byte[] Decrypt(byte[] ciphertext_data, Aes aes)
+        public static string Decrypt(string text, Aes aes)
         {
 
             byte[] plaintext_data;
+            byte[] ciphertext_data = Convert.FromBase64String(text);
 
             ICryptoTransform decryptor = aes.CreateDecryptor();
             MemoryStream msDecrypt = new MemoryStream();
@@ -97,7 +98,8 @@ namespace Banking_Application
 
             plaintext_data = msDecrypt.ToArray();
             msDecrypt.Dispose();
-            return plaintext_data;
+
+            return Encoding.UTF8.GetString(plaintext_data);
 
         }
 
@@ -114,13 +116,23 @@ namespace Banking_Application
         public static string DecryptAccountNumber(string text)
         {
             Aes aes = GetOrCreateAesEncryptionKeyECB();
-            byte[] ciphertext_data = Convert.FromBase64String(text);
-            byte[] plaintext_data = Decrypt(ciphertext_data, aes);
+          //  byte[] ciphertext_data = Convert.FromBase64String(text);
+            string plaintext_data = Decrypt(text, aes);
             aes.Dispose();
 
-            return Encoding.ASCII.GetString(plaintext_data);
+            return plaintext_data;
         }
 
+
+        private static byte[] generateRandomIV()
+        {
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] iv = new byte[16]; // 128 bits for AES
+                rng.GetBytes(iv);
+                return iv;
+            }
+        }
 
     }
 }
