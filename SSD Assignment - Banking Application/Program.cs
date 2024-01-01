@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Banking_Application
 {
-    // Enums
-    internal enum AccountType
+    // Class to represent AccountType as strings
+    internal static class AccountType
     {
-        CurrentAccount = 1,
-        SavingsAccount = 2
+        public const string CurrentAccount = "1";
+        public const string SavingsAccount = "2";
     }
 
     public class Program
@@ -57,7 +58,8 @@ namespace Banking_Application
                     {
                         case "1":
                             int loopCount = 0;
-                            int accountType = 0; // Changed because now it is enum type
+                            string accountType = ""; 
+                            const string SENTINEL = "3"; 
 
                             do
                             {
@@ -69,12 +71,17 @@ namespace Banking_Application
                                 Console.WriteLine("***Account Types***:");
                                 Console.WriteLine("1. Current Account.");
                                 Console.WriteLine("2. Savings Account.");
+                                Console.WriteLine("3. Back to Main Menu.");
                                 Console.WriteLine("CHOOSE OPTION:");
-                                accountType = Convert.ToInt32(Console.ReadLine());
+                                accountType = Console.ReadLine();
 
                                 loopCount++;
-                            } while (!(accountType == (int)AccountType.CurrentAccount || accountType == (int)AccountType.SavingsAccount));
-
+                            } while (!(accountType == AccountType.CurrentAccount || accountType == AccountType.SavingsAccount ||  accountType == SENTINEL));
+                            // Back to main menu
+                            if(accountType == SENTINEL)
+                            {
+                                break; 
+                            }
 
                             String name = "";
                             loopCount = 0;
@@ -90,7 +97,7 @@ namespace Banking_Application
 
                                 loopCount++;
 
-                            } while (name.Equals(""));
+                            } while (!IsValidName(name));
 
                             String addressLine1 = "";
                             loopCount = 0;
@@ -233,7 +240,7 @@ namespace Banking_Application
 
                             if (ba is null)
                             {
-                                Console.WriteLine("Account Does Not Exist");
+                                Console.WriteLine("Account Does Not Exist or Integrity Fails");
                             }
                             else if (ba.balance > 0)
                             {
@@ -294,7 +301,7 @@ namespace Banking_Application
 
                             if (ba is null)
                             {
-                                Console.WriteLine("Account Does Not Exist");
+                                Console.WriteLine("Account Does Not Exist or Integrity Fails");
                             }
                             else
                             {
@@ -331,12 +338,14 @@ namespace Banking_Application
 
                             ba = dal.FindBankAccountByAccNo(accNo);
 
+
                             if (ba is null)
                             {
-                                Console.WriteLine("Account Does Not Exist");
+                                Console.WriteLine("Account Does Not Exist or Integrity Fails!");
                             }
                             else
                             {
+
                                 double amountToWithdraw = -1;
                                 loopCount = 0;
 
@@ -386,7 +395,13 @@ namespace Banking_Application
             } while (running != false);
 
 
-        }
 
+        }
+        private static bool IsValidName(string name)
+        {
+            Regex regex = new Regex("^[a-zA-Z]{3,}$");
+
+            return regex.IsMatch(name);
+        }
     }
 }
