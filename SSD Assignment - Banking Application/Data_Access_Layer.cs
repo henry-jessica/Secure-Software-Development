@@ -90,7 +90,7 @@ namespace Banking_Application
 
             if (ba == null)
                 return null;
-            else
+            else 
                 return ba;
         }
 
@@ -108,13 +108,15 @@ namespace Banking_Application
                 return existingAccount;
             }
 
+
+
             // If the account is not already loaded, load it from the database
             using (var connection = getDatabaseConnection())
             {
                 connection.Open();
                 var command = connection.CreateCommand();
                 // Remove Selected All * 
-                command.CommandText = "SELECT accountNo,name, address_line_1, address_line_2, address_line_3, town, balance, accountType, overdraftAmount, interestRate, iv FROM Bank_Accounts WHERE accountNo = @accountNo";
+                command.CommandText = "SELECT accountNo,name, address_line_1, address_line_2, address_line_3, town, balance, accountType, overdraftAmount, interestRate, iv,integrity_hash   FROM Bank_Accounts WHERE accountNo = @accountNo";
                 command.Parameters.AddWithValue("@accountNo", encryptedAccNo);
 
 
@@ -147,7 +149,28 @@ namespace Banking_Application
                         ca.balance = dr.GetDouble(6);
                         ca.overdraftAmount = dr.GetDouble(8);
 
-                        return ca;
+                        try
+                        {
+                            string recalculate_integrity_hash = calculateIntegrityHash(ca);
+
+                            if (recalculate_integrity_hash != dr.GetString(11))
+                            {
+                                Console.WriteLine("Integrity check failed: Data has been altered or corrupted. Security risk detected.");
+
+                                // Log the event or take other appropriate actions
+                                Logger.WriteEvent($"Integrity check failed for account: {AesEncryptionHandler.DecryptAccountNumber(ca.accountNo)}. Security risk detected.", EventLogEntryType.Error, DateTime.Now);
+                                throw new FormatException("Integrity check failed: Access to this account is temporarily blocked for security reasons.");
+                            }
+                            else
+                            {
+                                return ca;
+                            }
+                        }
+                        catch (System.FormatException ex)
+                        {
+                            // Handle the exception gracefully without breaking the code
+                            Console.WriteLine($"Exception: {ex.Message}");
+                        }
                     }
                     else
                     {
@@ -174,15 +197,43 @@ namespace Banking_Application
                         sa.town = AesEncryptionHandler.Decrypt(encryptedTownBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
                         sa.balance = dr.GetDouble(6);
                         sa.interestRate = dr.GetDouble(9);
-                        return sa;
+
+                    
+                        try
+                        {
+                            // Integrity check for Savings_Account
+                            string recalculate_integrity_hash = calculateIntegrityHash(sa);
+
+                            if (recalculate_integrity_hash != dr.GetString(11))
+                            {
+                                Console.WriteLine("Integrity check failed: Data has been altered or corrupted. Security risk detected.");
+
+                                // Log the event or take other appropriate actions
+                                Logger.WriteEvent($"Integrity check failed for account: {AesEncryptionHandler.DecryptAccountNumber(sa.accountNo)}. Security risk detected.", EventLogEntryType.Error, DateTime.Now);
+
+                                throw new FormatException("Integrity check failed: Access to this account is temporarily blocked for security reasons.");
+                            }
+                            else
+                            {
+                                return sa;
+                            }
+                        }
+                        catch (System.FormatException ex)
+                        {
+                            // Handle the exception gracefully without breaking the code
+                            Console.WriteLine($"Exception: {ex.Message}");
+                           
+                        }
                     }
                 }
             }
 
             // Account not found in the database
+
             return null;
         }
 
+  
         public String AddBankAccount(Bank_Account ba)
         {
 
@@ -246,9 +297,7 @@ namespace Banking_Application
                     @iv, 
                     @integrity_hash)";
 
-                // Calculate hash for integrity check
-                string integrityHash = calculateIntegrityHash(ba);
-                command.Parameters.AddWithValue("@integrity_hash", integrityHash);
+             
 
                 byte[] iv = generateRandomIV();
                 Aes aes = AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv);
@@ -280,6 +329,10 @@ namespace Banking_Application
                 }
 
                 command.Parameters.AddWithValue("@iv", Convert.ToBase64String(iv)); // Save IV as a Base64 string
+
+                // Calculate hash for integrity check
+                string integrityHash = calculateIntegrityHash(ba);
+                command.Parameters.AddWithValue("@integrity_hash", integrityHash);
 
 
                 command.ExecuteNonQuery();
@@ -386,8 +439,13 @@ namespace Banking_Application
                 // Update the balance in the database
                 UpdateAccountBalanceInDatabase(toLodgeTo.accountNo, toLodgeTo.balance + amountToLodge);
 
+                // Calculate and update integrity hash
+                string newIntegrityHash = calculateIntegrityHash(toLodgeTo);
+                UpdateIntegrityHashInDatabase(toLodgeTo.accountNo, newIntegrityHash);
+
                 // Clear sensitive information 
                 toLodgeTo = null;
+                newIntegrityHash = null;
                 GC.Collect();
 
                 return true;
@@ -488,7 +546,12 @@ namespace Banking_Application
             }
 
 
-            Bank_Account toWithdrawFrom = FindBankAccountFromDatabaseWithOutDecryption(accNo);
+            // Bank_Account toWithdrawFrom = FindBankAccountFromDatabaseWithOutDecryption(accNo);
+
+            String encryptedAccNo = AesEncryptionHandler.EncryptAccountNumber(accNo);
+
+            Bank_Account toWithdrawFrom = LoadBankAccountFromDatabase(encryptedAccNo);
+
 
             if (toWithdrawFrom == null)
             {
@@ -520,18 +583,53 @@ namespace Banking_Application
                 return false;
             }
 
-            // Log the event: Withdrawal successful
+            //Update Balance to database 
+            
+            UpdateAccountBalanceInDatabase(encryptedAccNo, toWithdrawFrom.balance);
+
+          
+
+            // Get New Integraty Hash 
+            string newIntegrityHash = calculateIntegrityHash(toWithdrawFrom);
+            UpdateIntegrityHashInDatabase(encryptedAccNo, newIntegrityHash);
+
+           // Log the event: Withdrawal successful
             Logger.WriteEvent($"Withdrawal successful for account: {accNo}.", EventLogEntryType.Information, DateTime.Now);
-
-            // Update the balance in the database
-            UpdateAccountBalanceInDatabase(toWithdrawFrom.accountNo, toWithdrawFrom.balance);
-
-
             // Clear sensitive information
+
             toWithdrawFrom = null;
             GC.Collect();
 
             return true;
+        }
+        private string calculateIntegrityHashUpdate(Bank_Account ba)
+        {
+             ba = LoadBankAccountFromDatabase(ba.accountNo);
+
+
+            // Concatenate relevant columns for hashing
+            string dataToHash = $"{ba.accountNo}{ba.name}{ba.address_line_1}{ba.address_line_2}{ba.address_line_3}{ba.town}{ba.balance}";
+
+            // Use a secure hashing algorithm (e.g., SHA-256)
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(dataToHash));
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            }
+        }
+
+
+        private void UpdateIntegrityHashInDatabase(string accountNo, string newIntegrityHash)
+        {
+            using (var connection = getDatabaseConnection())
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "UPDATE Bank_Accounts SET integrity_hash = @integrityHash WHERE accountNo = @accountNo";
+                command.Parameters.AddWithValue("@integrityHash", newIntegrityHash);
+                command.Parameters.AddWithValue("@accountNo", accountNo);
+                command.ExecuteNonQuery();
+            }
         }
 
         private void UpdateAccountBalanceInDatabase(string accountNo, double newBalance)
@@ -558,6 +656,20 @@ namespace Banking_Application
                 command.Parameters.AddWithValue("@accountNo", accountNo);
                 command.ExecuteNonQuery();
             }
+        }
+
+        private string LoadIntegrityHashFromDatabase(string accountNo)
+        {
+            using (var connection = getDatabaseConnection())
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT integrity_hash FROM Bank_Accounts WHERE accountNo = @accountNo";
+                command.Parameters.AddWithValue("@accountNo", accountNo);
+
+                return command.ExecuteScalar() as string;
+            }
+
         }
 
         private bool IsAllowedCaller(StackTrace stackTrace)
@@ -592,4 +704,6 @@ namespace Banking_Application
 
         }
     }
+
+
 }
