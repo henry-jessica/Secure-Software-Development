@@ -233,7 +233,7 @@ namespace Banking_Application
             return null;
         }
 
-  
+
         public String AddBankAccount(Bank_Account ba)
         {
 
@@ -422,7 +422,11 @@ namespace Banking_Application
                 return false;
             }
 
-            Bank_Account toLodgeTo = FindBankAccountFromDatabaseWithOutDecryption(accNo);
+            String encryptedAccNo = AesEncryptionHandler.EncryptAccountNumber(accNo);
+
+         //   Bank_Account toLodgeTo = LoadBankAccountFromDatabase(accNo);
+            Bank_Account toLodgeTo = LoadBankAccountFromDatabase(encryptedAccNo);
+
 
             if (toLodgeTo == null)
             {
@@ -436,12 +440,15 @@ namespace Banking_Application
             }
             else
             {
-                // Update the balance in the database
-                UpdateAccountBalanceInDatabase(toLodgeTo.accountNo, toLodgeTo.balance + amountToLodge);
+                // Perform withdrawal
+                toLodgeTo.lodge(amountToLodge);
 
-                // Calculate and update integrity hash
+                // Update the balance in the database
+                UpdateAccountBalanceInDatabase(encryptedAccNo, toLodgeTo.balance);
+
+                // Get New Integraty Hash 
                 string newIntegrityHash = calculateIntegrityHash(toLodgeTo);
-                UpdateIntegrityHashInDatabase(toLodgeTo.accountNo, newIntegrityHash);
+                UpdateIntegrityHashInDatabase(encryptedAccNo, newIntegrityHash);
 
                 // Clear sensitive information 
                 toLodgeTo = null;
@@ -451,6 +458,7 @@ namespace Banking_Application
                 return true;
             }
         }
+
 
         public Bank_Account FindBankAccountFromDatabaseWithOutDecryption(String accNo)
         {
@@ -587,13 +595,12 @@ namespace Banking_Application
             
             UpdateAccountBalanceInDatabase(encryptedAccNo, toWithdrawFrom.balance);
 
-          
 
             // Get New Integraty Hash 
             string newIntegrityHash = calculateIntegrityHash(toWithdrawFrom);
             UpdateIntegrityHashInDatabase(encryptedAccNo, newIntegrityHash);
 
-           // Log the event: Withdrawal successful
+            // Log the event: Withdrawal successful
             Logger.WriteEvent($"Withdrawal successful for account: {accNo}.", EventLogEntryType.Information, DateTime.Now);
             // Clear sensitive information
 
@@ -602,22 +609,6 @@ namespace Banking_Application
 
             return true;
         }
-        private string calculateIntegrityHashUpdate(Bank_Account ba)
-        {
-             ba = LoadBankAccountFromDatabase(ba.accountNo);
-
-
-            // Concatenate relevant columns for hashing
-            string dataToHash = $"{ba.accountNo}{ba.name}{ba.address_line_1}{ba.address_line_2}{ba.address_line_3}{ba.town}{ba.balance}";
-
-            // Use a secure hashing algorithm (e.g., SHA-256)
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(dataToHash));
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-            }
-        }
-
 
         private void UpdateIntegrityHashInDatabase(string accountNo, string newIntegrityHash)
         {
@@ -658,20 +649,6 @@ namespace Banking_Application
             }
         }
 
-        private string LoadIntegrityHashFromDatabase(string accountNo)
-        {
-            using (var connection = getDatabaseConnection())
-            {
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText = "SELECT integrity_hash FROM Bank_Accounts WHERE accountNo = @accountNo";
-                command.Parameters.AddWithValue("@accountNo", accountNo);
-
-                return command.ExecuteScalar() as string;
-            }
-
-        }
-
         private bool IsAllowedCaller(StackTrace stackTrace)
         {
             // Get the calling method from the stack trace
@@ -683,8 +660,11 @@ namespace Banking_Application
 
         private bool IsSystemAndMainCaller(StackTrace stackTrace)
         {
+            MethodBase callingMethod = stackTrace.GetFrame(1).GetMethod();
+
+
             // Check if the caller is the main method or part of the system
-            return stackTrace.GetFrame(1).GetMethod().Name == "Main";
+            return stackTrace.GetFrame(1).GetMethod().Name == "Main" || callingMethod?.Name == "AddBankAccount";
         }
 
         private void LogStackTrace()
