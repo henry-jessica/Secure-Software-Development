@@ -20,7 +20,6 @@ namespace Banking_Application
 
         public Bank_Account()
         {
-            this.accountNo = System.Guid.NewGuid().ToString();
         }
 
         public Bank_Account(String name, String address_line_1, String address_line_2, String address_line_3, String town, double balance)
@@ -31,6 +30,8 @@ namespace Banking_Application
             this.address_line_3 = address_line_3;
             this.town = town;
             this.balance = balance;
+            this.accountNo = System.Guid.NewGuid().ToString();
+
         }
 
         public void lodge(double amountIn)
