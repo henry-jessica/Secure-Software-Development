@@ -62,7 +62,6 @@ namespace Banking_Application
 
             return aes;
         }
-
         public static byte[] Encrypt(byte[] plaintext_data, Aes aes)
         {
 
@@ -82,7 +81,6 @@ namespace Banking_Application
             return ciphertext_data;
 
         }
-
         public static string Decrypt(string text, Aes aes)
         {
 
@@ -102,7 +100,6 @@ namespace Banking_Application
             return Encoding.UTF8.GetString(plaintext_data);
 
         }
-
         public static string EncryptAccountNumber(string text)
         {
             Aes aes = GetOrCreateAesEncryptionKeyECB();
@@ -122,8 +119,6 @@ namespace Banking_Application
 
             return plaintext_data;
         }
-
-
         private static byte[] generateRandomIV()
         {
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())

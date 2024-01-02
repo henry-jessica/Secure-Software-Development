@@ -21,7 +21,7 @@ namespace Banking_Application
         private List<Bank_Account> accounts;
         private static String databaseName = "Banking Database.db";
 
-        // provide a thread-safe way to implement lazy initialization
+        // provide a thread-safe 
         private static readonly Lazy<Data_Access_Layer> lazyInstance = new Lazy<Data_Access_Layer>(() => new Data_Access_Layer());
 
         private Data_Access_Layer()
@@ -35,7 +35,6 @@ namespace Banking_Application
         {
             return lazyInstance.Value;
         }
-
 
         private SqliteConnection getDatabaseConnection()
         {
@@ -232,7 +231,6 @@ namespace Banking_Application
 
             return null;
         }
-
 
         public String AddBankAccount(Bank_Account ba)
         {
@@ -459,7 +457,6 @@ namespace Banking_Application
             }
         }
 
-
         public Bank_Account FindBankAccountFromDatabaseWithOutDecryption(String accNo)
         {
             // Log the event: Attempting to find bank account by account number
@@ -684,6 +681,4 @@ namespace Banking_Application
 
         }
     }
-
-
 }
