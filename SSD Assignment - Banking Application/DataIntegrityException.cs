@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SSD_Assignment___Banking_Application
 {
-    public class DataIntegrityException : Exception
+    public sealed class DataIntegrityException : Exception
     {
         public DataIntegrityException() { }
 

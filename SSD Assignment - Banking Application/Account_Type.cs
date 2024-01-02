@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Banking_Application
 {
-    class Account_Type
+    sealed class Account_Type
     {
         public static int Current_Account = 1;
         public static int Savings_Account = 2;

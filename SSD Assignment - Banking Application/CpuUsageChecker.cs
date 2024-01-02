@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Banking_Application
 {
-    public class CpuUsageChecker
+    public sealed class CpuUsageChecker
     {
         private PerformanceCounter cpuCounter;
 

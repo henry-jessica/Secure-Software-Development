@@ -16,15 +16,15 @@ namespace Banking_Application
         public String address_line_3;
         public String town;
         public double balance;
+        public string iv;
 
         public Bank_Account()
         {
-
+            this.accountNo = System.Guid.NewGuid().ToString();
         }
-        
+
         public Bank_Account(String name, String address_line_1, String address_line_2, String address_line_3, String town, double balance)
         {
-            this.accountNo = System.Guid.NewGuid().ToString();
             this.name = name;
             this.address_line_1 = address_line_1;
             this.address_line_2 = address_line_2;
@@ -42,9 +42,6 @@ namespace Banking_Application
 
         public virtual bool CanWithdrawSaving(double amountToWithdraw)
         {
-            // This is a generic implementation. You should override this method in derived classes
-            // to implement account-specific withdrawal rules.
-            // For a generic bank account, allow withdrawal if there are sufficient funds.
             return balance - amountToWithdraw >= 0;
         }
 

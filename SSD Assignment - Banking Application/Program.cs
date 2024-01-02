@@ -13,7 +13,7 @@ namespace Banking_Application
         public const string SavingsAccount = "2";
     }
 
-    public class Program
+    public sealed class Program
     {
         private static CpuUsageChecker cpuUsageChecker = new CpuUsageChecker();
 
@@ -131,7 +131,7 @@ namespace Banking_Application
                             else
                             {
                                 double amountToLodge = -1;
-                                int loopCount = 0; // Declare 'loopCount' here
+                                int loopCount = 0; 
 
                                 do
                                 {

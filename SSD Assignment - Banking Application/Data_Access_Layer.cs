@@ -15,7 +15,7 @@ using System.Reflection;
 
 namespace Banking_Application
 {
-    public class Data_Access_Layer
+    public sealed class Data_Access_Layer
     {
 
         private List<Bank_Account> accounts;

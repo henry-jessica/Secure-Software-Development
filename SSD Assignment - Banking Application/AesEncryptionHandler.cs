@@ -119,15 +119,5 @@ namespace Banking_Application
 
             return plaintext_data;
         }
-        private static byte[] generateRandomIV()
-        {
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-            {
-                byte[] iv = new byte[16]; // 128 bits for AES
-                rng.GetBytes(iv);
-                return iv;
-            }
-        }
-
     }
 }

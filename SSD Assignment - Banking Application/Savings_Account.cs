@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Banking_Application
 {
-    public class Savings_Account: Bank_Account
+    public sealed class Savings_Account: Bank_Account
     {
 
         public double interestRate;
@@ -27,9 +27,6 @@ namespace Banking_Application
 
         public override bool CanWithdrawCC(double amountToWithdraw)
         {
-            // This is a generic implementation. You should override this method in derived classes
-            // to implement account-specific withdrawal rules.
-            // For a generic savings account, allow withdrawal if there are sufficient funds.
             return balance - amountToWithdraw >= 0;
         }
 
