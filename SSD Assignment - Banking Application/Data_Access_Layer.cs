@@ -11,6 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using System.Reflection;
+using Newtonsoft.Json;
+using System.IO;
+
 
 
 namespace Banking_Application
@@ -81,7 +84,7 @@ namespace Banking_Application
         public Bank_Account FindBankAccountByAccNo(String accNo)
         {
             // Log the event: Attempting to find bank account by account number
-            Logger.WriteEvent($"Attempting to find bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
+            EventLogger.WriteEvent($"Attempting to find bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
 
             String encryptedAccNo = AesEncryptionHandler.EncryptAccountNumber(accNo);
 
@@ -93,14 +96,14 @@ namespace Banking_Application
                 return ba;
         }
 
-        public Bank_Account LoadBankAccountFromDatabase(String encryptedAccNo)
+        private Bank_Account LoadBankAccountFromDatabase(String encryptedAccNo)
         {
             // Ensure the database is initialized
             if (!File.Exists(Data_Access_Layer.databaseName))
                 initialiseDatabase();
 
             // Check if the account is already loaded in the accounts list
-            Bank_Account existingAccount = accounts.FirstOrDefault(acc => acc.accountNo.Equals(encryptedAccNo, StringComparison.OrdinalIgnoreCase));
+            Bank_Account existingAccount = accounts.FirstOrDefault(acc => acc.AccountNo.Equals(encryptedAccNo, StringComparison.OrdinalIgnoreCase));
 
             if (existingAccount != null)
             {
@@ -139,13 +142,13 @@ namespace Banking_Application
 
                         Current_Account ca = new Current_Account();
 
-                        ca.accountNo = AesEncryptionHandler.DecryptAccountNumber(dr.GetString(0));
-                        ca.name = AesEncryptionHandler.Decrypt(encryptedNameBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        ca.address_line_1 = AesEncryptionHandler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        ca.address_line_2 = AesEncryptionHandler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        ca.address_line_3 = AesEncryptionHandler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        ca.town = AesEncryptionHandler.Decrypt(encryptedTownBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        ca.balance = dr.GetDouble(6);
+                        ca.AccountNo = AesEncryptionHandler.DecryptAccountNumber(dr.GetString(0));
+                        ca.Name = AesEncryptionHandler.Decrypt(encryptedNameBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        ca.Address_line_1 = AesEncryptionHandler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        ca.Address_line_2 = AesEncryptionHandler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        ca.Address_line_3 = AesEncryptionHandler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        ca.Town = AesEncryptionHandler.Decrypt(encryptedTownBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        ca.Balance = dr.GetDouble(6);
                         ca.overdraftAmount = dr.GetDouble(8);
 
                         try
@@ -157,7 +160,7 @@ namespace Banking_Application
                                 Console.WriteLine("Integrity check failed: Data has been altered or corrupted. Security risk detected.");
 
                                 // Log the event or take other appropriate actions
-                                Logger.WriteEvent($"Integrity check failed for account: {AesEncryptionHandler.DecryptAccountNumber(ca.accountNo)}. Security risk detected.", EventLogEntryType.Error, DateTime.Now);
+                                EventLogger.WriteEvent($"Integrity check failed for account: {AesEncryptionHandler.DecryptAccountNumber(ca.AccountNo)}. Security risk detected.", EventLogEntryType.Error, DateTime.Now);
                                 throw new FormatException("Integrity check failed: Access to this account is temporarily blocked for security reasons.");
                             }
                             else
@@ -188,13 +191,13 @@ namespace Banking_Application
 
                         Savings_Account sa = new Savings_Account();
 
-                        sa.accountNo = AesEncryptionHandler.DecryptAccountNumber(dr.GetString(0));
-                        sa.name =AesEncryptionHandler.Decrypt(encryptedNameBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        sa.address_line_1 = AesEncryptionHandler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        sa.address_line_2 = AesEncryptionHandler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        sa.address_line_3 = AesEncryptionHandler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        sa.town = AesEncryptionHandler.Decrypt(encryptedTownBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
-                        sa.balance = dr.GetDouble(6);
+                        sa.AccountNo = AesEncryptionHandler.DecryptAccountNumber(dr.GetString(0));
+                        sa.Name =AesEncryptionHandler.Decrypt(encryptedNameBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        sa.Address_line_1 = AesEncryptionHandler.Decrypt(encryptedAddressLine1Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        sa.Address_line_2 = AesEncryptionHandler.Decrypt(encryptedAddressLine2Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        sa.Address_line_3 = AesEncryptionHandler.Decrypt(encryptedAddressLine3Bytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        sa.Town = AesEncryptionHandler.Decrypt(encryptedTownBytes, AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv));
+                        sa.Balance = dr.GetDouble(6);
                         sa.interestRate = dr.GetDouble(9);
 
                     
@@ -208,7 +211,7 @@ namespace Banking_Application
                                 Console.WriteLine("Integrity check failed: Data has been altered or corrupted. Security risk detected.");
 
                                 // Log the event or take other appropriate actions
-                                Logger.WriteEvent($"Integrity check failed for account: {AesEncryptionHandler.DecryptAccountNumber(sa.accountNo)}. Security risk detected.", EventLogEntryType.Error, DateTime.Now);
+                                EventLogger.WriteEvent($"Integrity check failed for account: {AesEncryptionHandler.DecryptAccountNumber(sa.AccountNo)}. Security risk detected.", EventLogEntryType.Error, DateTime.Now);
 
                                 throw new FormatException("Integrity check failed: Access to this account is temporarily blocked for security reasons.");
                             }
@@ -244,7 +247,7 @@ namespace Banking_Application
                 // Log Tracer 
                 LogStackTrace();
                 // Log the event: Unauthorized caller
-                Logger.WriteEvent($"AddBankAccount failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
+                EventLogger.WriteEvent($"AddBankAccount failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
                 return null;
             }
 
@@ -258,7 +261,7 @@ namespace Banking_Application
             if (availableFreeSpace < requiredFreeSpace)
             {
                 // Log the event: Insufficient free space
-                Logger.WriteEvent($"AddBankAccount failed. Insufficient free space on the drive.", EventLogEntryType.Error, DateTime.Now);
+                EventLogger.WriteEvent($"AddBankAccount failed. Insufficient free space on the drive.", EventLogEntryType.Error, DateTime.Now);
                 LogStackTrace(); // Log the stack trace
                 return null;
             }
@@ -301,13 +304,13 @@ namespace Banking_Application
                 Aes aes = AesEncryptionHandler.GetOrCreateAesEncryptionKeyCBC(iv);
 
                 // Add parameters directly to the command's Parameters collection
-                command.Parameters.AddWithValue("@accountNo", (AesEncryptionHandler.EncryptAccountNumber(ba.accountNo)));
-                command.Parameters.AddWithValue("@name", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.name), aes)));
-                command.Parameters.AddWithValue("@address_line_1", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_1), aes)));
-                command.Parameters.AddWithValue("@address_line_2", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_2), aes)));
-                command.Parameters.AddWithValue("@address_line_3", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.address_line_3), aes)));
-                command.Parameters.AddWithValue("@town", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.town), aes)));
-                command.Parameters.AddWithValue("@balance", ba.balance);
+                command.Parameters.AddWithValue("@accountNo", (AesEncryptionHandler.EncryptAccountNumber(ba.AccountNo)));
+                command.Parameters.AddWithValue("@name", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.Name), aes)));
+                command.Parameters.AddWithValue("@address_line_1", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.Address_line_1), aes)));
+                command.Parameters.AddWithValue("@address_line_2", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.Address_line_2), aes)));
+                command.Parameters.AddWithValue("@address_line_3", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.Address_line_3), aes)));
+                command.Parameters.AddWithValue("@town", Convert.ToBase64String(AesEncryptionHandler.Encrypt(Encoding.UTF8.GetBytes(ba.Town), aes)));
+                command.Parameters.AddWithValue("@balance", ba.Balance);
 
 
                 if (ba.GetType() == typeof(Current_Account))
@@ -328,6 +331,8 @@ namespace Banking_Application
 
                 command.Parameters.AddWithValue("@iv", Convert.ToBase64String(iv)); // Save IV as a Base64 string
 
+
+
                 // Calculate hash for integrity check
                 string integrityHash = calculateIntegrityHash(ba);
                 command.Parameters.AddWithValue("@integrity_hash", integrityHash);
@@ -339,22 +344,27 @@ namespace Banking_Application
             }
 
             // Log information about the saved data
-            Logger.WriteEvent($"Bank account data saved to the database. Account Detals: {ba}, User: {WindowsIdentity.GetCurrent().Name}, Timestamp: {DateTime.Now}", EventLogEntryType.Information, DateTime.Now);
+            EventLogger.WriteEvent($"Bank account data saved to the database. Account Detals: {ba}, User: {WindowsIdentity.GetCurrent().Name}, Timestamp: {DateTime.Now}", EventLogEntryType.Information, DateTime.Now);
 
             //grab the accoun number to clean the rest
-            string bank_account_number = ba.accountNo;
+            string bank_account_number = ba.AccountNo;
           
             // Clear sensitive information from memory after save to database 
             ba = null;
             GC.Collect();
+
+
 
             return bank_account_number;
         }
 
         private string calculateIntegrityHash(Bank_Account ba)
         {
+            // Serialize the Bank_Account object to JSON
+            string serializedData = JsonConvert.SerializeObject(ba);
+
             // Concatenate relevant columns for hashing
-            string dataToHash = $"{ba.accountNo}{ba.name}{ba.address_line_1}{ba.address_line_2}{ba.address_line_3}{ba.town}{ba.balance}";
+            string dataToHash = $"{ba.AccountNo}{ba.Name}{ba.Address_line_1}{ba.Address_line_2}{ba.Address_line_3}{ba.Town}{ba.Balance}{serializedData}";
 
             // Use a secure hashing algorithm (e.g., SHA-256)
             using (SHA256 sha256 = SHA256.Create())
@@ -379,7 +389,7 @@ namespace Banking_Application
 
             // Log the event: Attempting to find bank account by account number
             String accNo = AesEncryptionHandler.EncryptAccountNumber(encryptedAccNo); // Decrypted data just to make log 
-            Logger.WriteEvent($"Attempting to delete bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
+            EventLogger.WriteEvent($"Attempting to delete bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
             // Set accNo to null after using it
             accNo = null;
 
@@ -416,7 +426,7 @@ namespace Banking_Application
             if (!IsSystemAndMainCaller(stackTrace))
             {
                 // Log the event: Unauthorized caller
-                Logger.WriteEvent($"Lodge failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
+                EventLogger.WriteEvent($"Lodge failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
                 return false;
             }
 
@@ -429,7 +439,7 @@ namespace Banking_Application
             if (toLodgeTo == null)
             {
                 // Log the event: Account not found
-                Logger.WriteEvent($"Lodge failed. Account not found: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+                EventLogger.WriteEvent($"Lodge failed. Account not found: {accNo}.", EventLogEntryType.Error, DateTime.Now);
 
                 // Log the stack trace
                 LogStackTrace();
@@ -441,8 +451,8 @@ namespace Banking_Application
                 // Perform withdrawal
                 toLodgeTo.lodge(amountToLodge);
 
-                // Update the balance in the database
-                UpdateAccountBalanceInDatabase(encryptedAccNo, toLodgeTo.balance);
+                // Update the Balance in the database
+                UpdateAccountBalanceInDatabase(encryptedAccNo, toLodgeTo.Balance);
 
                 // Get New Integraty Hash 
                 string newIntegrityHash = calculateIntegrityHash(toLodgeTo);
@@ -460,7 +470,7 @@ namespace Banking_Application
         public Bank_Account FindBankAccountFromDatabaseWithOutDecryption(String accNo)
         {
             // Log the event: Attempting to find bank account by account number
-            Logger.WriteEvent($"Attempting to find bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
+            EventLogger.WriteEvent($"Attempting to find bank account by account number: {accNo}", EventLogEntryType.Information, DateTime.Now);
 
             using (var connection = getDatabaseConnection())
             {
@@ -479,13 +489,13 @@ namespace Banking_Application
                     {
                         Current_Account ca = new Current_Account();
 
-                        ca.accountNo = dr.GetString(0);
-                        ca.name = dr.GetString(1);
-                        ca.address_line_1 = dr.GetString(2);
-                        ca.address_line_2 = dr.GetString(3);
-                        ca.address_line_3 = dr.GetString(4);
-                        ca.town = dr.GetString(5);
-                        ca.balance = dr.GetDouble(6);
+                        ca.AccountNo = dr.GetString(0);
+                        ca.Name = dr.GetString(1);
+                        ca.Address_line_1 = dr.GetString(2);
+                        ca.Address_line_2 = dr.GetString(3);
+                        ca.Address_line_3 = dr.GetString(4);
+                        ca.Town = dr.GetString(5);
+                        ca.Balance = dr.GetDouble(6);
                         ca.overdraftAmount = dr.GetDouble(8);
 
                         return ca;
@@ -494,13 +504,13 @@ namespace Banking_Application
                     {
                         Savings_Account sa = new Savings_Account();
 
-                        sa.accountNo = AesEncryptionHandler.DecryptAccountNumber(dr.GetString(0));
-                        sa.name = dr.GetString(1);
-                        sa.address_line_1 = dr.GetString(2);
-                        sa.address_line_2 = dr.GetString(3);
-                        sa.address_line_3 = dr.GetString(4);
-                        sa.town = dr.GetString(5);
-                        sa.balance = dr.GetDouble(6);
+                        sa.AccountNo = AesEncryptionHandler.DecryptAccountNumber(dr.GetString(0));
+                        sa.Name = dr.GetString(1);
+                        sa.Address_line_1 = dr.GetString(2);
+                        sa.Address_line_2 = dr.GetString(3);
+                        sa.Address_line_3 = dr.GetString(4);
+                        sa.Town = dr.GetString(5);
+                        sa.Balance = dr.GetDouble(6);
                         sa.interestRate = dr.GetDouble(9);
 
                         return sa;
@@ -546,7 +556,7 @@ namespace Banking_Application
             if (!IsSystemAndMainCaller(stackTrace))
             {
                 // Log the event: Unauthorized caller
-                Logger.WriteEvent($"Withdrawal failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
+                EventLogger.WriteEvent($"Withdrawal failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
                 return false;
             }
 
@@ -561,7 +571,7 @@ namespace Banking_Application
             if (toWithdrawFrom == null)
             {
                 // Log the event: Account not found
-                Logger.WriteEvent($"Withdrawal failed. Account not found: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+                EventLogger.WriteEvent($"Withdrawal failed. Account not found: {accNo}.", EventLogEntryType.Error, DateTime.Now);
 
                 // Log the stack trace
                 LogStackTrace();
@@ -574,7 +584,7 @@ namespace Banking_Application
             if (!toWithdrawFrom.CanWithdrawCC(amountToWithdraw))
             {
                 // Log the event: Insufficient funds
-                Logger.WriteEvent($"Withdrawal failed. Insufficient funds for account: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+                EventLogger.WriteEvent($"Withdrawal failed. Insufficient funds for account: {accNo}.", EventLogEntryType.Error, DateTime.Now);
                 return false;
             }
 
@@ -584,13 +594,13 @@ namespace Banking_Application
             if (!result)
             {
                 // Log the event: Withdrawal failed
-                Logger.WriteEvent($"Withdrawal failed for account: {accNo}.", EventLogEntryType.Error, DateTime.Now);
+                EventLogger.WriteEvent($"Withdrawal failed for account: {accNo}.", EventLogEntryType.Error, DateTime.Now);
                 return false;
             }
 
             //Update Balance to database 
             
-            UpdateAccountBalanceInDatabase(encryptedAccNo, toWithdrawFrom.balance);
+            UpdateAccountBalanceInDatabase(encryptedAccNo, toWithdrawFrom.Balance);
 
 
             // Get New Integraty Hash 
@@ -598,7 +608,7 @@ namespace Banking_Application
             UpdateIntegrityHashInDatabase(encryptedAccNo, newIntegrityHash);
 
             // Log the event: Withdrawal successful
-            Logger.WriteEvent($"Withdrawal successful for account: {accNo}.", EventLogEntryType.Information, DateTime.Now);
+            EventLogger.WriteEvent($"Withdrawal successful for account: {accNo}.", EventLogEntryType.Information, DateTime.Now);
             // Clear sensitive information
 
             toWithdrawFrom = null;
@@ -629,7 +639,7 @@ namespace Banking_Application
             if (!IsAllowedCaller(stackTrace))
             {
                 // Log the event: Unauthorized caller
-                Logger.WriteEvent($"Update failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
+                EventLogger.WriteEvent($"Update failed. Unauthorized caller.", EventLogEntryType.Error, DateTime.Now);
                 LogStackTrace(); 
 
                 return;
@@ -675,10 +685,29 @@ namespace Banking_Application
             {
                 foreach (var frame in stackFrames)
                 {
-                    Logger.WriteEvent($"   at {frame.GetMethod()} in {frame.GetFileName()}:{frame.GetFileLineNumber()}", EventLogEntryType.Error, DateTime.Now);
+                    EventLogger.WriteEvent($"   at {frame.GetMethod()} in {frame.GetFileName()}:{frame.GetFileLineNumber()}", 
+                    EventLogEntryType.Error, DateTime.Now);
                 }
             }
 
         }
+
+        private bool CheckAvailableDiskSpace(long requiredSpaceInBytes)
+        {
+            DriveInfo driveInfo = new DriveInfo(Path.GetPathRoot(AppDomain.CurrentDomain.BaseDirectory));
+            long availableFreeSpace = driveInfo.AvailableFreeSpace;
+
+            if (availableFreeSpace < requiredSpaceInBytes)
+            {
+                // Log the event: Insufficient free space
+                EventLogger.WriteEvent($"Insufficient free space on the drive. Required: {requiredSpaceInBytes} bytes, Available: {availableFreeSpace} bytes", EventLogEntryType.Error, DateTime.Now);
+                LogStackTrace(); // Log the stack trace
+                return false;
+            }
+
+            return true;
+        }
+
+
     }
 }

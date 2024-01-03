@@ -62,6 +62,20 @@ namespace Banking_Application
 
             return aes;
         }
+
+        public static string CalculateHash(Bank_Account ba)
+        {
+            // Concatenate relevant columns for hashing
+            string dataToHash = $"{ba.AccountNo}{ba.Name}{ba.Address_line_1}{ba.Address_line_2}{ba.Address_line_3}{ba.Town}{ba.Balance}";
+
+            // Use a secure hashing algorithm (e.g., SHA-256)
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(dataToHash));
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            }
+        }
+
         public static byte[] Encrypt(byte[] plaintext_data, Aes aes)
         {
 
@@ -76,7 +90,9 @@ namespace Banking_Application
             csEncrypt.Dispose();
 
             ciphertext_data = msEncrypt.ToArray();
+
             msEncrypt.Dispose();
+            GC.Collect();
 
             return ciphertext_data;
 
@@ -95,7 +111,10 @@ namespace Banking_Application
             csDecrypt.Dispose();
 
             plaintext_data = msDecrypt.ToArray();
+
             msDecrypt.Dispose();
+            ciphertext_data = null; 
+            GC.Collect(); 
 
             return Encoding.UTF8.GetString(plaintext_data);
 
@@ -106,17 +125,20 @@ namespace Banking_Application
 
             byte[] plaintext_data = Encoding.ASCII.GetBytes(text);
             byte[] ciphertext_data = Encrypt(plaintext_data, aes);
+
             aes.Dispose();
+            GC.Collect();
 
             return Convert.ToBase64String(ciphertext_data);
         }
         public static string DecryptAccountNumber(string text)
         {
             Aes aes = GetOrCreateAesEncryptionKeyECB();
-          //  byte[] ciphertext_data = Convert.FromBase64String(text);
-            string plaintext_data = Decrypt(text, aes);
-            aes.Dispose();
 
+            string plaintext_data = Decrypt(text, aes);
+
+            aes.Dispose();
+            GC.Collect();
             return plaintext_data;
         }
     }

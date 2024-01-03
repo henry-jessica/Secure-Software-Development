@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace Banking_Application
 {
-    public static class Logger
+    public static class EventLogger
     {
         private static string logName = "BankAppLog";
         private static string sourceName = "BankAppSource";
@@ -23,7 +23,7 @@ namespace Banking_Application
         private static string githubToken = "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"; // This key expired, create a new key with right Gits permission to see the logs 
 
 
-        static Logger()
+        static EventLogger()
         {
             if (!EventLog.SourceExists(sourceName))
             {
@@ -69,7 +69,7 @@ namespace Banking_Application
 
         public static void WriteEvent(string message, EventLogEntryType eventType, DateTime timestamp)
         {
-            // Get the system user name
+            // Get the system user Name
             string userName = Environment.UserName;
 
             using (EventLog eventLog = new EventLog(logName))

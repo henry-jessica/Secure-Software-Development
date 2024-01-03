@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Banking_Application
 {
+    [Serializable]
     public sealed class Current_Account: Bank_Account
     {
 
@@ -33,7 +34,7 @@ namespace Banking_Application
 
             if (avFunds >= amountToWithdraw)
             {
-                    balance = avFunds-amountToWithdraw - overdraftAmount;
+                    Balance = avFunds-amountToWithdraw - overdraftAmount;
 
                 return true;
             }
@@ -45,7 +46,7 @@ namespace Banking_Application
 
         public override double getAvailableFunds()
         {
-            return (base.balance + overdraftAmount);
+            return (base.Balance + overdraftAmount);
         }
 
         public override String ToString()

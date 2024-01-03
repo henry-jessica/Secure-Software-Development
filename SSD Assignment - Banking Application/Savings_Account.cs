@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Banking_Application
 {
+    [Serializable]
     public sealed class Savings_Account: Bank_Account
     {
 
@@ -22,12 +23,12 @@ namespace Banking_Application
         }
         public override double getAvailableFunds()
         {
-            return base.balance;
+            return base.Balance;
         }
 
         public override bool CanWithdrawCC(double amountToWithdraw)
         {
-            return balance - amountToWithdraw >= 0;
+            return Balance - amountToWithdraw >= 0;
         }
 
         public override bool withdraw(double amountToWithdraw)
@@ -36,7 +37,7 @@ namespace Banking_Application
 
             if (avFunds >= amountToWithdraw)
             {
-                balance -= amountToWithdraw;
+                Balance -= amountToWithdraw;
                 return true;
             }
 

@@ -6,12 +6,6 @@ using System.Text.RegularExpressions;
 
 namespace Banking_Application
 {
-    // Class to represent AccountType as strings
-    internal static class AccountType
-    {
-        public const string CurrentAccount = "1";
-        public const string SavingsAccount = "2";
-    }
 
     public sealed class Program
     {
@@ -67,13 +61,13 @@ namespace Banking_Application
                             {
                                 Console.WriteLine("Account Does Not Exist or Integrity Fails");
                             }
-                            else if (ba.balance > 0)
+                            else if (ba.Balance > 0)
                             {
-                                Console.WriteLine("Account has a positive balance €{0:0.00}. Please withdraw the funds before closing the account.", ba.balance);
+                                Console.WriteLine("Account has a positive balance €{0:0.00}. Please withdraw the funds before closing the account.", ba.Balance);
                             }
-                            else if (ba.balance < 0)
+                            else if (ba.Balance < 0)
                             {
-                                Console.WriteLine("Cannot close the account. The account balance is negative (€{0:0.00}). Please make a lodgement to bring the balance to positive before closing the account.", Math.Abs(ba.balance));
+                                Console.WriteLine("Cannot close the account. The account balance is negative (€{0:0.00}). Please make a lodgement to bring the balance to positive before closing the account.", Math.Abs(ba.Balance));
                             }
                             else
                             {
@@ -98,7 +92,7 @@ namespace Banking_Application
                                     {
                                         case "Y":
                                         case "y":
-                                            dal.CloseBankAccount(ba.accountNo); //encrypted bank account number 
+                                            dal.CloseBankAccount(ba.AccountNo); //encrypted bank account number 
                                             Console.WriteLine("Account successfully deleted.");
                                             break;
                                         case "N":
@@ -265,7 +259,8 @@ namespace Banking_Application
                 accountType = Console.ReadLine();
 
                 loopCount++;
-            } while (!(accountType == AccountType.CurrentAccount || accountType == AccountType.SavingsAccount || accountType == SENTINEL));
+            } while (!(accountType=="1" || accountType =="2" || accountType == SENTINEL));
+            
             // Back to main menu
             if (accountType == SENTINEL)
             {

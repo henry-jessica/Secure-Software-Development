@@ -6,17 +6,59 @@ using System.Threading.Tasks;
 
 namespace Banking_Application
 {
+    [Serializable]
     public abstract class Bank_Account
     {
 
-        public String accountNo;
-        public String name;
-        public String address_line_1;
-        public String address_line_2;
-        public String address_line_3;
-        public String town;
-        public double balance;
-        public string iv;
+        private string accountNo;
+        private string name;
+        private string address_line_1;
+        private string address_line_2;
+        private string address_line_3;
+        private string town;
+        private double balance;
+
+        public string AccountNo
+        {
+            get { return accountNo; }
+            set { accountNo = value; }
+        }
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+        public string Address_line_3
+        {
+            get { return address_line_3; }
+            set { address_line_3 = value; }
+        }
+
+        public string Town
+        {
+            get { return town; }
+            set { town = value; }
+        }
+
+        public double Balance
+        {
+            get { return balance; }
+            set { balance = value; }
+        }
+
+        public string Address_line_1
+        {
+            get { return address_line_1; }
+            set { address_line_1 = value; }
+        }
+
+        public string Address_line_2
+        {
+            get { return address_line_2; }
+            set { address_line_2 = value; }
+        }
+
 
         public Bank_Account()
         {
@@ -37,13 +79,13 @@ namespace Banking_Application
         public void lodge(double amountIn)
         {
 
-            balance += amountIn;
+            Balance += amountIn;
 
         }
 
         public virtual bool CanWithdrawSaving(double amountToWithdraw)
         {
-            return balance - amountToWithdraw >= 0;
+            return Balance - amountToWithdraw >= 0;
         }
 
 
@@ -56,13 +98,13 @@ namespace Banking_Application
         public override String ToString()
         {
 
-            return "\nAccount No: " + accountNo + "\n" +
-            "Name: " + name + "\n" +
-            "Address Line 1: " + address_line_1 + "\n" +
-            "Address Line 2: " + address_line_2 + "\n" +
-            "Address Line 3: " + address_line_3 + "\n" +
-            "Town: " + town + "\n" +
-            "Balance: " + balance + "\n";
+            return "\nAccount No: " + AccountNo + "\n" +
+            "Name: " + Name + "\n" +
+            "Address Line 1: " + Address_line_1 + "\n" +
+            "Address Line 2: " + Address_line_2 + "\n" +
+            "Address Line 3: " + Address_line_3 + "\n" +
+            "Town: " + Town + "\n" +
+            "Balance: " + Balance + "\n";
 
     }
 
