@@ -62,6 +62,8 @@ namespace Banking_Application
 
         public Bank_Account()
         {
+                        this.accountNo = System.Guid.NewGuid().ToString();
+
         }
 
         public Bank_Account(String name, String address_line_1, String address_line_2, String address_line_3, String town, double balance)
